@@ -27,13 +27,21 @@ svg{flex:1 1 0;min-height:50px;width:100%;height:100%;display:block}
 .pbs button:disabled{opacity:.25}
 .pbs button.clr{background:#1f1f24;color:#aaa;border:1px solid #333}
 svg rect.pl{cursor:pointer}
+.mix{margin-top:6px;border:2px solid #ffb300;border-radius:12px;padding:6px 8px;flex:none;background:#1d1a12}
+.mix .h{color:#ffb300;font-size:13px;font-weight:800;margin-bottom:4px}
+.mix .row{display:flex;gap:6px}
+.mix .pt{flex:1;min-width:0;background:#141416;border-radius:8px;padding:4px}
+.mix .pt b{display:block;font-size:12px;color:#ddd;margin-bottom:3px}
+.mix .bl{display:flex;flex-wrap:wrap;gap:2px}
+.mix .bl i{font-style:normal;font-size:10px;font-weight:800;color:#111;border-radius:3px;padding:1px 3px}
+.mix .bar{height:4px;background:#555;border-radius:2px;margin:4px 0}
 .note{margin-top:6px;color:#aaa;font-size:13px;line-height:1.3;flex:none}
 .near{flex:none}.near button{margin:6px 6px 0 0;border:0;border-radius:11px;background:#26262b;color:#fff;font-size:16px;padding:10px 14px;font-weight:700}
 </style></head><body>
 <div class="tog"><button id="bb" class="on">🏋️ 槓鈴</button><button id="db">💪 啞鈴</button></div>
 <div class="in"><button id="mn">−</button><input id="w" inputmode="decimal" value="42"><button id="pl">＋</button></div>
 <div class="hint" id="hint"></div><div class="card" id="out"></div><div class="bld"><div class="lb">手動加片（每點同時加・點圖中槓片移除）</div><div class="pbs" id="pbs"></div></div>
-<script src="data.js?v=13"></script><script>
+<script src="data.js?v=14"></script><script>
 const P=[[1,'#8d6e63','1',.55],[1.25,'#9e9e9e','1.25',.6],[1.5,'#43a047','1.5',.68],[2,'#fdd835','2',.78],[2.5,'#1e88e5','2.5',.86],[5,'#e53935','5',1]];
 let eq='槓鈴';const $=id=>document.getElementById(id),W=$('w');
 const T=x=>+(2*x).toFixed(2),tot=t=>eq==='啞鈴'?`<div class="tot">兩支合計 ${t} kg</div>`:'';
@@ -55,7 +63,7 @@ function render0(){shown=null;const v=num(W.value);$('hint').textContent=eq==='�
  const m=r.p[0];if(r.m==4)shown=m.slice();let note='×4 點全相同';
  if(r.m<4){const o=r.p.slice(r.m);note=`另${['','一','兩','三'][o.length]}點：`;}
  $('out').innerHTML=`<div class="st">每一端 ${sum(m)} kg　${r.m==4?'<span style="color:#4caf50">×4 點全相同</span>':`<span style="color:#ffb300">×${r.m} 點</span>`}</div>${svg(m)}<div class="chips">${chips(m)}</div>`+
-  (r.m<4?`<div class="note">${note}</div><div class="chips">${chips(r.p[r.m])}</div>`:'')+tot(T(r.t))}
+  (r.m<4?mixPanel(r):'')+tot(T(r.t))}
 
 const INV=[8,4,4,4,4,4];let manual=null,shown=null;
 function inv(){return eq==='槓鈴'?INV:[8,4,4,4,4,0]}
@@ -68,6 +76,12 @@ function rm(i){const b=(manual||shown||[0,0,0,0,0,0]).slice();if(!b[i])return;b[
 function clr(){manual=[0,0,0,0,0,0];W.value=wOf(manual);render()}
 function renderManual(){const m=manual;$('out').innerHTML=`<div class="st">每一端 ${+sum(m).toFixed(2)} kg　<span style="color:#4caf50">×4 點全相同</span></div>${svg(m)}<div class="chips">${chips(m)}</div>`+tot(wOf(m)*2/1&&T(wOf(m)))}
 function num(x){const n=parseFloat(String(x).replace(/[，,]/g,'.').replace(/[^0-9.]/g,''));return isNaN(n)?NaN:Math.round(n*20)/20}
+function mini(c){const g=['#fff','#e6e6e6','#cfcfcf','#b5b5b5','#9a9a9a','#7d7d7d'];return '<div class="bl">'+(plates(c).map(p=>{const i=P.indexOf(p);return `<i style="background:${g[i]};${i>=4?'color:#fff':''}">${p[2]}</i>`}).join('')||'<i style="background:#333;color:#888">空</i>')+'</div>'}
+function mixPanel(r){const A=r.p[0],o=r.p.slice(r.m);let pts;
+ if(eq==='槓鈴'){pts=r.m==2?[A,o[0],o[1],A]:[A,...r.p.slice(1)];
+  const n=['①','②','③','④'];return `<div class="mix"><div class="h">⚠ 四點配置不同（每點都是 ${+sum(A).toFixed(2)} kg）</div><div class="row">${pts.map((c,i)=>`<div class="pt"><b>${n[i]}${i<2?' 左':' 右'}</b>${mini(c)}</div>`).join('')}</div><div class="bar"></div></div>`}
+ const e=r.m==2?[[A,o[0]],[A,o[1]]]:r.m==3?[[A,A],[A,o[0]]]:[[A,o[0]],[o[1],o[2]]];
+ return `<div class="mix"><div class="h">⚠ 四端配置不同（每端都是 ${+sum(A).toFixed(2)} kg）</div><div class="row">${e.map((d,k)=>`<div class="pt"><b>啞鈴 ${'AB'[k]}</b><div class="row">${d.map((c,j)=>`<div style="flex:1;min-width:0"><b style="font-size:10px;color:#888">${j?'右':'左'}</b>${mini(c)}</div>`).join('')}</div></div>`).join('')}</div></div>`}
 function setW(v){manual=null;W.value=v;render()}
 function step(d){let v=num(W.value)||0;const s=eq==='槓鈴'?1:.5;setW(+(v+d*s).toFixed(2))}
 $('mn').onclick=()=>step(-1);$('pl').onclick=()=>step(1);W.oninput=()=>{manual=null;render()};
