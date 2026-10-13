@@ -25,6 +25,7 @@ svg{flex:1 1 0;min-height:50px;width:100%;height:100%;display:block}
 .pbs{display:grid;grid-template-columns:repeat(auto-fit,minmax(40px,1fr));gap:6px}
 .pbs button{min-height:44px;border:0;border-radius:11px;background:#2a2a30;color:#eee;font-size:15px;font-weight:800;padding:0}
 .pbs button small{display:block;font-size:10px;font-weight:600;color:#999;margin-top:1px}
+.jump{display:flex;justify-content:space-between;gap:8px;flex:none;margin-bottom:4px}.jump button{border:0;border-radius:10px;background:#26262b;color:#ddd;font-size:15px;font-weight:700;padding:8px 14px;min-width:84px}
 .msg{margin-top:6px;color:#ff5252;font-size:13px;font-weight:700;text-align:center;flex:none}
 .pbs button:disabled{opacity:.25}
 .pbs button.clr{background:#1f1f24;color:#aaa;border:1px solid #333}
@@ -87,9 +88,10 @@ function head(r){if(!pts)return '';const ws=pts.map(c=>f2(sum(c))),eqw=ws.every(
   return `<div class="st" style="color:${HL};font-size:14px;white-space:nowrap">⚠ 各點不同 ①${ws[0]} ②${ws[1]} ③${ws[2]} ④${ws[3]}</div>`}
  const a=dbw(0),b=dbw(1);
  return `<div class="st">${ident?'<span style="color:#4caf50">四端全相同</span>':eqw?`<span style="color:${HL}">⚠ 四端配置不同（每端 ${ws[0]} kg）</span>`:`<span style="color:${HL}">⚠ ${[0,1].filter(k=>ws[2*k]!==ws[2*k+1]).map(k=>'啞鈴 '+'AB'[k]+' 左右不平衡').join('、')||'A、B 重量不同'}</span>`}</div>`}
+function jump(){const v=num(W.value),R=rows(),lo=R.filter(r=>r.t<v-0.02).pop(),hi=R.find(r=>r.t>v+0.02);return `<div class="jump">${lo?`<button onclick="setW(${lo.t})">↓ ${lo.t}</button>`:'<span></span>'}${hi?`<button onclick="setW(${hi.t})">↑ ${hi.t}</button>`:'<span></span>'}</div>`}
 function draw(){const o=$('out');
  if(!pts){return}
- let h=head()+(eq==='槓鈴'?planBB():planDB());
+ let h=head()+jump()+(eq==='槓鈴'?planBB():planDB());
  if(eq==='啞鈴'){const a=dbw(0),b=dbw(1);h+=`<div class="tot">A ${a} kg ＋ B ${b} kg ＝ 兩支合計 ${f2(a+b)} kg</div>`}
  else h+=`<div class="tot">總重 ${f2(12+pts.reduce((s,c)=>s+sum(c),0))} kg</div>`;
  if(msg)h+=`<div class="msg">${msg}</div>`;
