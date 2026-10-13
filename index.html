@@ -3,37 +3,36 @@
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="槓片計算">
 <meta name="theme-color" content="#111"><link rel="manifest" href="manifest.json?v=8"><link rel="apple-touch-icon" href="icon-v8-180.png"><link rel="apple-touch-icon" sizes="180x180" href="data:image/png;base64,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"><link rel="icon" type="image/png" sizes="192x192" href="https://chan0ir.github.io/plate-calc/icon-192.png?v=3">
-<title>槓片計算</title><style>
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;background:#0d0d0f;color:#fff;font-family:-apple-system,"PingFang TC",sans-serif;padding:calc(env(safe-area-inset-top) + 16px) calc(env(safe-area-inset-right) + 18px) calc(env(safe-area-inset-bottom) + 18px) calc(env(safe-area-inset-left) + 18px)}
-h1{font-size:22px;margin:0 0 14px;font-weight:800}
-.tog{display:flex;background:#1c1c20;border-radius:16px;padding:4px;margin-bottom:16px}
-.tog button{flex:1;border:0;background:none;color:#aaa;font-size:19px;font-weight:700;padding:14px;border-radius:12px}
+<title>槓片計算</title><style>*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;overscroll-behavior:none}
+body{margin:0;background:#0d0d0f;color:#fff;font-family:-apple-system,"PingFang TC",sans-serif;height:100dvh;display:flex;flex-direction:column;gap:8px;touch-action:manipulation;
+padding:calc(env(safe-area-inset-top) + 8px) calc(env(safe-area-inset-right) + 12px) calc(env(safe-area-inset-bottom) + 8px) calc(env(safe-area-inset-left) + 12px)}
+.tog{display:flex;background:#1c1c20;border-radius:14px;padding:3px;flex:none}
+.tog button{flex:1;border:0;background:none;color:#aaa;font-size:17px;font-weight:700;padding:10px;border-radius:11px}
 .tog button.on{background:#ff7a1a;color:#fff}
-.in{display:flex;align-items:center;gap:10px}
-.in button{width:64px;height:72px;border:0;border-radius:16px;background:#26262b;color:#fff;font-size:34px;font-weight:700}
-.in input{flex:1;min-width:0;height:72px;border:2px solid #333;border-radius:16px;background:#16161a;color:#fff;font-size:40px;font-weight:800;text-align:center}
-.hint{color:#888;font-size:14px;text-align:center;margin:8px 0 18px}
-.card{background:#16161a;border-radius:20px;padding:18px}
-.st{font-size:18px;font-weight:700;margin-bottom:10px}.bad{color:#ff5252}
-svg{width:100%;height:auto;display:block}
-.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-.chip{padding:8px 14px;border-radius:12px;font-weight:800;font-size:18px}
-.tot{margin-top:16px;padding-top:12px;border-top:1px solid #2a2a30;color:#ccc;font-size:17px;font-weight:700;text-align:center}
-.bld{margin-top:14px;background:#16161a;border-radius:20px;padding:14px}
-.bld .lb{color:#888;font-size:14px;margin-bottom:10px}
-.pbs{display:flex;flex-wrap:wrap;gap:8px}
-.pbs button{flex:1 0 28%;min-height:52px;border:0;border-radius:14px;background:#2a2a30;color:#eee;font-size:19px;font-weight:800}
+.in{display:flex;align-items:center;gap:8px;flex:none}
+.in button{width:56px;height:56px;border:0;border-radius:14px;background:#26262b;color:#fff;font-size:30px;font-weight:700}
+.in input{flex:1;min-width:0;height:56px;border:2px solid #333;border-radius:14px;background:#16161a;color:#fff;font-size:32px;font-weight:800;text-align:center}
+.hint{color:#888;font-size:12px;text-align:center;margin:-2px 0;flex:none}
+.card{background:#16161a;border-radius:16px;padding:10px 12px;flex:1 1 0;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+.st{font-size:16px;font-weight:700;margin-bottom:4px;flex:none}.bad{color:#ff5252}
+svg{flex:1 1 0;min-height:50px;width:100%;height:100%;display:block}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;flex:none}
+.chip{padding:3px 9px;border-radius:9px;font-weight:800;font-size:14px}
+.tot{margin-top:8px;padding-top:6px;border-top:1px solid #2a2a30;color:#ccc;font-size:15px;font-weight:700;text-align:center;flex:none}
+.bld{background:#16161a;border-radius:16px;padding:8px 10px;flex:none}
+.bld .lb{color:#888;font-size:12px;margin-bottom:6px}
+.pbs{display:grid;grid-template-columns:repeat(auto-fit,minmax(40px,1fr));gap:6px}
+.pbs button{min-height:44px;border:0;border-radius:11px;background:#2a2a30;color:#eee;font-size:15px;font-weight:800;padding:0}
 .pbs button:disabled{opacity:.25}
 .pbs button.clr{background:#1f1f24;color:#aaa;border:1px solid #333}
 svg rect.pl{cursor:pointer}
-.note{margin-top:12px;color:#aaa;font-size:15px;line-height:1.5}
-.near button{margin:6px 6px 0 0;border:0;border-radius:12px;background:#26262b;color:#fff;font-size:17px;padding:12px 16px;font-weight:700}
+.note{margin-top:6px;color:#aaa;font-size:13px;line-height:1.3;flex:none}
+.near{flex:none}.near button{margin:6px 6px 0 0;border:0;border-radius:11px;background:#26262b;color:#fff;font-size:16px;padding:10px 14px;font-weight:700}
 </style></head><body>
-<h1 style="visibility:hidden" aria-hidden="true">🧮 槓片計算</h1>
 <div class="tog"><button id="bb" class="on">🏋️ 槓鈴</button><button id="db">💪 啞鈴</button></div>
 <div class="in"><button id="mn">−</button><input id="w" inputmode="decimal" value="42"><button id="pl">＋</button></div>
-<div class="hint" id="hint"></div><div class="card" id="out"></div><div class="bld"><div class="lb">手動加片（每點同時加，點圖中槓片可移除）</div><div class="pbs" id="pbs"></div></div>
+<div class="hint" id="hint"></div><div class="card" id="out"></div><div class="bld"><div class="lb">手動加片（每點同時加・點圖中槓片移除）</div><div class="pbs" id="pbs"></div></div>
 <script src="data.js"></script><script>
 const P=[[1,'#8d6e63','1',.55],[1.25,'#9e9e9e','1.25',.6],[1.5,'#43a047','1.5',.68],[2,'#fdd835','2',.78],[2.5,'#1e88e5','2.5',.86],[5,'#e53935','5',1]];
 let eq='槓鈴';const $=id=>document.getElementById(id),W=$('w');
@@ -44,7 +43,7 @@ function svg(c){const a=plates(c);let x=40,s='';const H=150;
  a.forEach(p=>{const w=p[0]>=2.5?30:p[0]>=1.5?24:20,h=H*p[3];
  s+=`<rect class="pl" onclick="rm(${P.indexOf(p)})" x="${x}" y="${(170-h)/2}" width="${w}" height="${h}" rx="4" fill="${p[1]}"/><text x="${x+w/2}" y="${(170-h)/2+h+16}" fill="#ddd" font-size="12" font-weight="700" text-anchor="middle">${p[2]}</text>`;x+=w+3});
  const L=Math.max(x+40,300);
- return `<svg viewBox="0 0 ${L} 190"><rect x="0" y="72" width="34" height="26" fill="#777"/><rect x="34" y="60" width="6" height="50" fill="#999"/><rect x="40" y="76" width="${L-40}" height="18" rx="3" fill="#bbb"/>${s}</svg>`}
+ return `<svg viewBox="0 0 ${L} 190" preserveAspectRatio="xMidYMid meet"><rect x="0" y="72" width="34" height="26" fill="#777"/><rect x="34" y="60" width="6" height="50" fill="#999"/><rect x="40" y="76" width="${L-40}" height="18" rx="3" fill="#bbb"/>${s}</svg>`}
 function chips(c){return plates(c).map(p=>`<span class="chip" style="background:${p[1]};color:${p[0]==2?'#000':'#fff'}">${p[2]}</span>`).join('')||'<span class="note">不用掛片（空槓）</span>'}
 function sum(c){return c.reduce((s,n,i)=>s+n*P[i][0],0)}
 function render(){const _r=render0();if(manual)renderManual();drawPbs();return _r}
@@ -62,7 +61,7 @@ const INV=[8,4,4,4,4,4];let manual=null,shown=null;
 function inv(){return eq==='槓鈴'?INV:[8,4,4,4,4,0]}
 function wOf(c){return eq==='槓鈴'?+(12+4*sum(c)).toFixed(2):+(0.3+2*sum(c)).toFixed(2)}
 function drawPbs(){const iv=inv(),b=manual||shown||[0,0,0,0,0,0];let h='';
- for(let i=5;i>=0;i--){if(eq!=='槓鈴'&&i==5)continue;h+=`<button onclick="add(${i})" ${4*(b[i]+1)>iv[i]?'disabled':''}>＋${P[i][2]}</button>`}
+ for(let i=5;i>=0;i--){if(eq!=='槓鈴'&&i==5)continue;h+=`<button onclick="add(${i})" ${4*(b[i]+1)>iv[i]?'disabled':''}>${P[i][2]}</button>`}
  $('pbs').innerHTML=h+'<button class="clr" onclick="clr()">清除</button>'}
 function add(i){const b=(manual||shown||[0,0,0,0,0,0]).slice();if(4*(b[i]+1)>inv()[i])return;b[i]++;manual=b;W.value=wOf(b);render()}
 function rm(i){const b=(manual||shown||[0,0,0,0,0,0]).slice();if(!b[i])return;b[i]--;manual=b;W.value=wOf(b);render()}
