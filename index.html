@@ -39,10 +39,10 @@ svg rect.pl{cursor:pointer}
 .note{margin-top:6px;color:#aaa;font-size:13px;line-height:1.3;flex:none}
 .near{flex:none}.near button{margin:6px 6px 0 0;border:0;border-radius:11px;background:#26262b;color:#fff;font-size:16px;padding:10px 14px;font-weight:700}
 </style></head><body>
-<div class="tog"><button id="bb" class="on">🏋️ 槓鈴</button><button id="db">💪 啞鈴</button></div>
+<div class="tog"><button id="bb" class="on">槓鈴</button><button id="db">啞鈴</button></div>
 <div class="in"><button id="mn">−</button><input id="w" inputmode="decimal" value="42"><button id="pl">＋</button></div>
 <div class="hint" id="hint"></div><div class="card" id="out"></div><div class="bld"><div class="lb">手動加片（每點同時加・點圖中槓片移除）</div><div class="pbs" id="pbs"></div></div>
-<script src="data.js?v=18"></script><script>
+<script src="data.js?v=19"></script><script>
 const P=[[1,'#8d6e63','1',.55],[1.25,'#9e9e9e','1.25',.6],[1.5,'#43a047','1.5',.68],[2,'#fdd835','2',.78],[2.5,'#1e88e5','2.5',.86],[5,'#e53935','5',1]];
 let eq='槓鈴';const $=id=>document.getElementById(id),W=$('w');
 const T=x=>+(2*x).toFixed(2),tot=t=>eq==='啞鈴'?`<div class="tot">兩支合計 ${t} kg</div>`:'';
