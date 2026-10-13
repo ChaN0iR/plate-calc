@@ -20,13 +20,20 @@ svg{width:100%;height:auto;display:block}
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
 .chip{padding:8px 14px;border-radius:12px;font-weight:800;font-size:18px}
 .tot{margin-top:16px;padding-top:12px;border-top:1px solid #2a2a30;color:#ccc;font-size:17px;font-weight:700;text-align:center}
+.bld{margin-top:14px;background:#16161a;border-radius:20px;padding:14px}
+.bld .lb{color:#888;font-size:14px;margin-bottom:10px}
+.pbs{display:flex;flex-wrap:wrap;gap:8px}
+.pbs button{flex:1 0 28%;min-height:52px;border:0;border-radius:14px;background:#2a2a30;color:#eee;font-size:19px;font-weight:800}
+.pbs button:disabled{opacity:.25}
+.pbs button.clr{background:#1f1f24;color:#aaa;border:1px solid #333}
+svg rect.pl{cursor:pointer}
 .note{margin-top:12px;color:#aaa;font-size:15px;line-height:1.5}
 .near button{margin:6px 6px 0 0;border:0;border-radius:12px;background:#26262b;color:#fff;font-size:17px;padding:12px 16px;font-weight:700}
 </style></head><body>
 <h1 style="visibility:hidden" aria-hidden="true">🧮 槓片計算</h1>
 <div class="tog"><button id="bb" class="on">🏋️ 槓鈴</button><button id="db">💪 啞鈴</button></div>
 <div class="in"><button id="mn">−</button><input id="w" inputmode="decimal" value="42"><button id="pl">＋</button></div>
-<div class="hint" id="hint"></div><div class="card" id="out"></div>
+<div class="hint" id="hint"></div><div class="card" id="out"></div><div class="bld"><div class="lb">手動加片（每點同時加，點圖中槓片可移除）</div><div class="pbs" id="pbs"></div></div>
 <script src="data.js"></script><script>
 const P=[[1,'#8d6e63','1',.55],[1.25,'#9e9e9e','1.25',.6],[1.5,'#43a047','1.5',.68],[2,'#fdd835','2',.78],[2.5,'#1e88e5','2.5',.86],[5,'#e53935','5',1]];
 let eq='槓鈴';const $=id=>document.getElementById(id),W=$('w');
@@ -35,23 +42,35 @@ const rows=()=>ROWS.filter(r=>r.e===eq);
 function plates(c){let a=[];for(let i=5;i>=0;i--)for(let k=0;k<c[i];k++)a.push(P[i]);return a}
 function svg(c){const a=plates(c);let x=40,s='';const H=150;
  a.forEach(p=>{const w=p[0]>=2.5?30:p[0]>=1.5?24:20,h=H*p[3];
- s+=`<rect x="${x}" y="${(170-h)/2}" width="${w}" height="${h}" rx="4" fill="${p[1]}"/><text x="${x+w/2}" y="${(170-h)/2+h+16}" fill="#ddd" font-size="12" font-weight="700" text-anchor="middle">${p[2]}</text>`;x+=w+3});
+ s+=`<rect class="pl" onclick="rm(${P.indexOf(p)})" x="${x}" y="${(170-h)/2}" width="${w}" height="${h}" rx="4" fill="${p[1]}"/><text x="${x+w/2}" y="${(170-h)/2+h+16}" fill="#ddd" font-size="12" font-weight="700" text-anchor="middle">${p[2]}</text>`;x+=w+3});
  const L=Math.max(x+40,300);
  return `<svg viewBox="0 0 ${L} 190"><rect x="0" y="72" width="34" height="26" fill="#777"/><rect x="34" y="60" width="6" height="50" fill="#999"/><rect x="40" y="76" width="${L-40}" height="18" rx="3" fill="#bbb"/>${s}</svg>`}
 function chips(c){return plates(c).map(p=>`<span class="chip" style="background:${p[1]};color:${p[0]==2?'#000':'#fff'}">${p[2]}</span>`).join('')||'<span class="note">不用掛片（空槓）</span>'}
 function sum(c){return c.reduce((s,n,i)=>s+n*P[i][0],0)}
-function render(){const v=parseFloat(W.value);$('hint').textContent=eq==='槓鈴'?'輸入總重（含 12 kg 空槓）':'輸入單支啞鈴重量（含 0.3 kg 握把）';
+function render(){const _r=render0();if(manual)renderManual();drawPbs();return _r}
+function render0(){shown=null;const v=parseFloat(W.value);$('hint').textContent=eq==='槓鈴'?'輸入總重（含 12 kg 空槓）':'輸入單支啞鈴重量（含 0.3 kg 握把）';
  if(isNaN(v)){$('out').innerHTML='<div class="st">請輸入重量</div>';return}
  const R=rows(),r=R.find(r=>Math.abs(r.t-v)<1e-6);
  if(!r){const lo=R.filter(r=>r.t<v).pop(),hi=R.find(r=>r.t>v);
   $('out').innerHTML=`<div class="st bad">✕ ${v} kg 湊不出來</div><div class="near">最接近：${lo?`<button onclick="setW(${lo.t})">↓ ${lo.t}</button>`:''}${hi?`<button onclick="setW(${hi.t})">↑ ${hi.t}</button>`:''}</div>`+tot([lo&&'↓ '+T(lo.t),hi&&'↑ '+T(hi.t)].filter(Boolean).join(' / '));return}
- const m=r.p[0];let note='×4 點全相同';
+ const m=r.p[0];if(r.m==4)shown=m.slice();let note='×4 點全相同';
  if(r.m<4){const o=r.p.slice(r.m);note=`另${['','一','兩','三'][o.length]}點：`;}
  $('out').innerHTML=`<div class="st">每一端 ${sum(m)} kg　${r.m==4?'<span style="color:#4caf50">×4 點全相同</span>':`<span style="color:#ffb300">×${r.m} 點</span>`}</div>${svg(m)}<div class="chips">${chips(m)}</div>`+
   (r.m<4?`<div class="note">${note}</div><div class="chips">${chips(r.p[r.m])}</div>`:'')+tot(T(r.t))}
-function setW(v){W.value=v;render()}
+
+const INV=[8,4,4,4,4,4];let manual=null,shown=null;
+function inv(){return eq==='槓鈴'?INV:[8,4,4,4,4,0]}
+function wOf(c){return eq==='槓鈴'?+(12+4*sum(c)).toFixed(2):+(0.3+2*sum(c)).toFixed(2)}
+function drawPbs(){const iv=inv(),b=manual||shown||[0,0,0,0,0,0];let h='';
+ for(let i=5;i>=0;i--){if(eq!=='槓鈴'&&i==5)continue;h+=`<button onclick="add(${i})" ${4*(b[i]+1)>iv[i]?'disabled':''}>＋${P[i][2]}</button>`}
+ $('pbs').innerHTML=h+'<button class="clr" onclick="clr()">清除</button>'}
+function add(i){const b=(manual||shown||[0,0,0,0,0,0]).slice();if(4*(b[i]+1)>inv()[i])return;b[i]++;manual=b;W.value=wOf(b);render()}
+function rm(i){const b=(manual||shown||[0,0,0,0,0,0]).slice();if(!b[i])return;b[i]--;manual=b;W.value=wOf(b);render()}
+function clr(){manual=[0,0,0,0,0,0];W.value=wOf(manual);render()}
+function renderManual(){const m=manual;$('out').innerHTML=`<div class="st">每一端 ${+sum(m).toFixed(2)} kg　<span style="color:#4caf50">×4 點全相同</span></div>${svg(m)}<div class="chips">${chips(m)}</div>`+tot(wOf(m)*2/1&&T(wOf(m)))}
+function setW(v){manual=null;W.value=v;render()}
 function step(d){let v=parseFloat(W.value)||0;const s=eq==='槓鈴'?1:.5;setW(+(v+d*s).toFixed(2))}
-$('mn').onclick=()=>step(-1);$('pl').onclick=()=>step(1);W.oninput=render;
+$('mn').onclick=()=>step(-1);$('pl').onclick=()=>step(1);W.oninput=()=>{manual=null;render()};
 $('bb').onclick=()=>{eq='槓鈴';$('bb').className='on';$('db').className='';setW(42)};
 $('db').onclick=()=>{eq='啞鈴';$('db').className='on';$('bb').className='';setW(10.3)};
 render();if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js');
