@@ -45,9 +45,9 @@ svg rect.pl{cursor:pointer}
 <div class="tog"><button id="bb" class="on">槓鈴</button><button id="db">啞鈴</button></div>
 <div class="in"><button id="mn">−</button><input id="w" inputmode="decimal" value="42"><button id="pl">＋</button></div>
 <div class="hint" id="hint"></div><div class="card" id="out"></div><div class="bld"><div class="lb"><span id="lbl"></span>　<span style="color:#666">點圖選位置・點槓片移除</span></div><div class="pbs" id="pbs"></div></div>
-<script src="data.js?v=20"></script><script>
+<script src="data.js?v=21"></script><script>
 const P=[[1,'#8d6e63','1',.55],[1.25,'#9e9e9e','1.25',.6],[1.5,'#43a047','1.5',.68],[2,'#fdd835','2',.78],[2.5,'#1e88e5','2.5',.86],[5,'#e53935','5',1]];
-const INV=[8,4,4,4,4,4],TH=[10,16,17,18,17,20],TW=[15,24,25,27,26,28],Z=()=>[0,0,0,0,0,0];
+const INV=[8,4,4,4,4,4],TH=[10,16,17,22,17,20],TW=[15,24,25,30,26,28],Z=()=>[0,0,0,0,0,0];
 let eq='槓鈴',pts=null,sel='all',same=null,msg='';const $=id=>document.getElementById(id),W=$('w');
 const rows=()=>ROWS.filter(r=>r.e===eq),f2=x=>+(+x).toFixed(2);
 function plates(c){let a=[];for(let i=5;i>=0;i--)for(let k=0;k<c[i];k++)a.push(i);return a}
