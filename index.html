@@ -42,7 +42,7 @@ svg rect.pl{cursor:pointer}
 <div class="tog"><button id="bb" class="on">🏋️ 槓鈴</button><button id="db">💪 啞鈴</button></div>
 <div class="in"><button id="mn">−</button><input id="w" inputmode="decimal" value="42"><button id="pl">＋</button></div>
 <div class="hint" id="hint"></div><div class="card" id="out"></div><div class="bld"><div class="lb">手動加片（每點同時加・點圖中槓片移除）</div><div class="pbs" id="pbs"></div></div>
-<script src="data.js?v=15"></script><script>
+<script src="data.js?v=16"></script><script>
 const P=[[1,'#8d6e63','1',.55],[1.25,'#9e9e9e','1.25',.6],[1.5,'#43a047','1.5',.68],[2,'#fdd835','2',.78],[2.5,'#1e88e5','2.5',.86],[5,'#e53935','5',1]];
 let eq='槓鈴';const $=id=>document.getElementById(id),W=$('w');
 const T=x=>+(2*x).toFixed(2),tot=t=>eq==='啞鈴'?`<div class="tot">兩支合計 ${t} kg</div>`:'';
@@ -92,10 +92,10 @@ function hshape(groups,cy,H,mid,lab){/* groups: [leftInner,leftOuter?] [rightInn
  let x=cx0-10;L.forEach((c,k)=>{const [g,w]=grp(c,x,-1,cy,H);const ww=Math.max(w,14);s+=g+`<text x="${x-ww/2}" y="${cy+H/2+14}" fill="#ffb300" font-size="13" font-weight="800" text-anchor="middle">${lab[0][k]}</text>`;x-=ww+12});
  x=cx1+10;R.forEach((c,k)=>{const [g,w]=grp(c,x,1,cy,H);const ww=Math.max(w,14);s+=g+`<text x="${x+ww/2}" y="${cy+H/2+14}" fill="#ffb300" font-size="13" font-weight="800" text-anchor="middle">${lab[1][k]}</text>`;x+=ww+12});
  return [s,W]}
-function vstack(c,cx,y0,dir,PW){let y=y0,s='';plates(c).forEach(p=>{const i=P.indexOf(p),h=9+p[0]*2.2,w=PW*p[3],Y=dir>0?y:y-h;
- s+=`<rect class="pl" onclick="rm(${i})" x="${cx-w/2}" y="${Y}" width="${w}" height="${h}" rx="2" fill="${GR[i]}" stroke="#111" stroke-width="1"/><text x="${cx}" y="${Y+h/2}" fill="${i>=4?'#fff':'#111'}" font-size="${Math.min(12,h-1)}" font-weight="800" text-anchor="middle" dominant-baseline="central">${p[2]}</text>`;y+=dir*(h+2)});return [s,Math.abs(y-y0)]}
+function vstack(c,cx,y0,dir,PW){let y=y0,s='';plates(c).forEach(p=>{const i=P.indexOf(p),h=10+p[0]*2.4,w=PW*p[3],Y=dir>0?y:y-h;
+ s+=`<rect class="pl" onclick="rm(${i})" x="${cx-w/2}" y="${Y}" width="${w}" height="${h}" rx="5" fill="${P[i][1]}"/><text x="${cx}" y="${Y+h/2}" fill="${i==3?'#000':'#fff'}" font-size="${Math.min(13,h-1)}" font-weight="800" text-anchor="middle" dominant-baseline="central">${p[2]}</text>`;y+=dir*(h+2)});return [s,Math.abs(y-y0)]}
 function plan(pts){
- if(eq==='槓鈴'){const PW=96,mid=120,meas=c=>plates(c).reduce((a,p)=>a+9+p[0]*2.2+2,0),up=Math.max(meas(pts[0]),meas(pts[2]),20),dn=Math.max(meas(pts[1]),meas(pts[3]),20);
+ if(eq==='槓鈴'){const PW=96,mid=120,meas=c=>plates(c).reduce((a,p)=>a+10+p[0]*2.4+2,0),up=Math.max(meas(pts[0]),meas(pts[2]),20),dn=Math.max(meas(pts[1]),meas(pts[3]),20);
   const xl=PW/2+20,xr=xl+mid,W=xr+PW/2+20,cy=22+up+12,Hh=cy+12+dn+8;let s='';
   s+=`<rect x="${xl}" y="${cy-4}" width="${mid}" height="8" rx="3" fill="#888"/>`;
   [xl,xr].forEach(x=>s+=`<rect x="${x-3}" y="8" width="6" height="${Hh-16}" rx="3" fill="#bbb"/><rect x="${x-14}" y="${cy-5}" width="28" height="10" rx="3" fill="#999"/>`);
