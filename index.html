@@ -44,44 +44,51 @@ svg rect.pl{cursor:pointer}
 </style></head><body>
 <div class="tog"><button id="bb" class="on">槓鈴</button><button id="db">啞鈴</button></div>
 <div class="in"><button id="mn">−</button><input id="w" inputmode="decimal" value="42"><button id="pl">＋</button></div>
-<div class="hint" id="hint"></div><div class="card" id="out"></div><div class="bld"><div class="lb"><span id="lbl"></span>　<span style="color:#666">點圖選位置・點槓片移除</span></div><div class="pbs" id="pbs"></div></div>
-<script src="data.js?v=21"></script><script>
+<div class="hint" id="hint"></div><div class="card" id="out"></div><div class="bld"><div class="lb"><span id="lbl"></span>　<span style="color:#666">點 ①②③④／左右 選位置（可多選）・點槓片移除</span></div><div class="pbs" id="pbs"></div></div>
+<script src="data.js?v=22"></script><script>
 const P=[[1,'#8d6e63','1',.55],[1.25,'#9e9e9e','1.25',.6],[1.5,'#43a047','1.5',.68],[2,'#fdd835','2',.78],[2.5,'#1e88e5','2.5',.86],[5,'#e53935','5',1]];
 const INV=[8,4,4,4,4,4],TH=[10,16,17,22,17,20],TW=[15,24,25,30,26,28],Z=()=>[0,0,0,0,0,0];
-let eq='槓鈴',pts=null,sel='all',same=null,msg='';const $=id=>document.getElementById(id),W=$('w');
+let eq='槓鈴',pts=null,sel=new Set(),same=null,msg='';const $=id=>document.getElementById(id),W=$('w');
 const rows=()=>ROWS.filter(r=>r.e===eq),f2=x=>+(+x).toFixed(2);
 function plates(c){let a=[];for(let i=5;i>=0;i--)for(let k=0;k<c[i];k++)a.push(i);return a}
 function sum(c){return c.reduce((s,n,i)=>s+n*P[i][0],0)}
 function used(){const u=Z();(pts||[]).forEach(c=>c.forEach((n,i)=>u[i]+=n));return u}
 function dbw(k){return f2(0.3+sum(pts[2*k])+sum(pts[2*k+1]))}
-function tgt(){if(sel==='all')return[0,1,2,3];if(sel==='A')return[0,1];if(sel==='B')return[2,3];return[sel]}
+function tgt(){return sel.size?[...sel].sort():[0,1,2,3]}
+const isOn=k=>sel.has(k),allOn=()=>sel.size==0||sel.size==4;
+function tog(k){sel.has(k)?sel.delete(k):sel.add(k);render()}
+function togAll(){sel=sel.size==4?new Set():new Set([0,1,2,3]);render()}
+function togDB(d){const a=2*d,b=a+1;if(sel.has(a)&&sel.has(b)){sel.delete(a);sel.delete(b)}else{sel.add(a);sel.add(b)}render()}
+function chip(x,y,t,on,act,w){w=w||24;return `<g onclick="${act}" style="cursor:pointer"><rect x="${x-w/2-4}" y="${y-16}" width="${w+8}" height="32" fill="transparent"/><rect x="${x-w/2}" y="${y-12}" width="${w}" height="24" rx="12" fill="${on?HL:'#2a2a30'}" stroke="${on?HL:'#444'}"/><text x="${x}" y="${y}" fill="${on?'#000':'#ddd'}" font-size="13" font-weight="800" text-anchor="middle" dominant-baseline="central" pointer-events="none">${t}</text></g>`}
 function ptsOf(r){const A=r.p[0],o=r.p.slice(r.m);
  if(eq==='槓鈴')return r.m==2?[A,o[0],o[1],A]:r.p.slice();
  return r.m==4?[A,A,A,A]:r.m==2?[A,o[0],A,o[1]]:r.m==3?[A,A,A,o[0]]:[A,o[0],o[1],o[2]]}
 function chips(c){return plates(c).map(i=>`<span class="chip" style="background:${P[i][1]};color:${i==3?'#000':'#fff'}">${P[i][2]}</span>`).join('')||'<span class="note">不用掛片</span>'}
 function prect(i,x,y,w,h,k,vert){return `<rect class="pl" onclick="rm(${i},${k})" x="${x}" y="${y}" width="${w}" height="${h}" rx="5" fill="${P[i][1]}"/><text x="${x+w/2}" y="${y+h/2}" ${vert?`transform="rotate(-90 ${x+w/2} ${y+h/2})"`:''} fill="${i==3?'#000':'#fff'}" font-size="${vert?Math.min(13,w-2):Math.min(13,h-1)}" font-weight="800" text-anchor="middle" dominant-baseline="central" pointer-events="none">${P[i][2]}</text>`}
 const HL='#ffb300';
-function hit(x,y,w,h,on,act){return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="10" fill="${on?'rgba(255,179,0,.12)':'transparent'}" stroke="${on?HL:'none'}" stroke-width="2.5" ${on?'':''} onclick="selT(${act})"/>`}
+function hit(x,y,w,h,on){return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="10" fill="${on?'rgba(255,179,0,.14)':'rgba(255,255,255,.025)'}" pointer-events="none"/>`}
 function planBB(){const PW=80,mid=150,GAP=26,meas=c=>plates(c).reduce((a,i)=>a+TH[i]+2,0),up=Math.max(meas(pts[0]),meas(pts[2]),26),dn=Math.max(meas(pts[1]),meas(pts[3]),26);
- const xl=PW/2+22,xr=xl+mid,W=xr+PW/2+22,cy=16+up+GAP,Hh=cy+GAP+dn+12;let s='';const all=sel==='all';
- [[0,xl,-1],[1,xl,1],[2,xr,-1],[3,xr,1]].forEach(([k,x,d])=>{const y=d<0?6:cy+14;s+=hit(x-PW/2-6,y,PW+12,d<0?cy-20:Hh-cy-20,all||sel===k,k)});
- s+=`<rect x="${xl}" y="${cy-5}" width="${mid}" height="10" rx="4" fill="${all?HL:'#888'}"/><rect x="${xl+10}" y="${cy-18}" width="${mid-20}" height="36" fill="transparent" onclick="selT('all')"/>`;
+ const xl=PW/2+40,xr=xl+mid,W=xr+PW/2+40,cy=16+up+GAP,Hh=cy+GAP+dn+12;let s='';const all=false;
+ [[0,xl,-1],[1,xl,1],[2,xr,-1],[3,xr,1]].forEach(([k,x,d])=>{const y=d<0?6:cy+14;s+=hit(x-PW/2-6,y,PW+12,d<0?cy-20:Hh-cy-20,isOn(k))});
+ s+=`<rect x="${xl}" y="${cy-5}" width="${mid}" height="10" rx="4" fill="#888"/>`;
  [xl,xr].forEach(x=>s+=`<rect x="${x-3}" y="10" width="6" height="${Hh-20}" rx="3" fill="#bbb" pointer-events="none"/><rect x="${x-14}" y="${cy-5}" width="28" height="10" rx="3" fill="#999" pointer-events="none"/>`);
  [[0,xl,-1,'①'],[1,xl,1,'②'],[2,xr,-1,'③'],[3,xr,1,'④']].forEach(([k,x,d,l])=>{let y=d<0?cy-GAP:cy+GAP;plates(pts[k]).forEach(i=>{const h=TH[i],w=PW*P[i][3],Y=d>0?y:y-h;s+=prect(i,x-w/2,Y,w,h,k);y+=d*(h+2)});
-  s+=`<text x="${x<W/2?x-PW/2-8:x+PW/2+8}" y="${d<0?cy-GAP-4:cy+GAP+12}" fill="${(all||sel===k)?HL:'#777'}" font-size="15" font-weight="800" text-anchor="middle" pointer-events="none">${l}</text>`});
+  s+=chip(x<W/2?x-PW/2-20:x+PW/2+20,d<0?cy-GAP-8:cy+GAP+8,l,isOn(k),`tog(${k})`)});
+ s+=chip(W/2,cy,'全部',sel.size==4,'togAll()',52);
  return `<svg viewBox="0 0 ${W} ${Hh}" preserveAspectRatio="xMidYMid meet">${s}</svg>`}
 function planDB(){const H=70,mid=60,meas=c=>plates(c).reduce((a,i)=>a+TW[i]*.7+2,0);
- const side=Math.max(...pts.map(meas),30),W=side*2+mid+60,rowH=H+34;let s='';const all=sel==='all';
- [0,1].forEach(k=>{const y0=k*(rowH+22)+4,cy=y0+22+H/2,cx0=30+side,cx1=cx0+mid,dk='AB'[k];
-  s+=`<text x="6" y="${y0+13}" fill="#ccc" font-size="13" font-weight="800">啞鈴 ${dk}　<tspan fill="#fff">${dbw(k)} kg</tspan></text>`;
-  s+=hit(cx0-side-8,y0+18,side+6,H+8,all||sel===dk||sel===2*k,2*k)+hit(cx1+2,y0+18,side+6,H+8,all||sel===dk||sel===2*k+1,2*k+1);
-  s+=`<rect x="10" y="${cy-3}" width="${W-20}" height="6" rx="3" fill="#bbb" pointer-events="none"/><rect x="${cx0}" y="${cy-6}" width="${mid}" height="12" rx="4" fill="${(all||sel===dk)?HL:'#888'}"/><rect x="${cx0}" y="${cy-20}" width="${mid}" height="40" fill="transparent" onclick="selT('${dk}')"/>`;
+ const side=Math.max(...pts.map(meas),40),W=side*2+mid+40,rowH=H+46;let s='';
+ [0,1].forEach(k=>{const y0=k*(rowH+30),cy=y0+34+H/2,cx0=20+side,cx1=cx0+mid,dk='AB'[k];
+  s+=hit(cx0-side-8,y0+28,side+6,H+12,isOn(2*k))+hit(cx1+2,y0+28,side+6,H+12,isOn(2*k+1));
+  s+=`<rect x="6" y="${cy-3}" width="${W-12}" height="6" rx="3" fill="#bbb" pointer-events="none"/><rect x="${cx0}" y="${cy-6}" width="${mid}" height="12" rx="4" fill="#888" pointer-events="none"/>`;
   [[2*k,cx0-4,-1],[2*k+1,cx1+4,1]].forEach(([e,x,d])=>{s+=`<rect x="${d<0?x-4:x}" y="${cy-H*.3}" width="4" height="${H*.6}" rx="2" fill="#999" pointer-events="none"/>`;x+=d*6;
-   plates(pts[e]).forEach(i=>{const w=TW[i]*.7,h=H*P[i][3],X=d>0?x:x-w;s+=prect(i,X,cy-h/2,w,h,e,true);x+=d*(w+2)})})});
- const yA=2*rowH+22+8;
- s+=`<rect x="${W/2-50}" y="${rowH+4}" width="100" height="22" rx="11" fill="${all?HL:'#2a2a30'}" onclick="selT('all')"/><text x="${W/2}" y="${rowH+15}" fill="${all?'#000':'#ccc'}" font-size="12" font-weight="800" text-anchor="middle" dominant-baseline="central" pointer-events="none">全部 4 端</text>`;
+   plates(pts[e]).forEach(i=>{const w=TW[i]*.7,h=H*P[i][3],X=d>0?x:x-w;s+=prect(i,X,cy-h/2,w,h,e,true);x+=d*(w+2)})});
+  s+=chip(cx0-side/2-4,y0+14,'左',isOn(2*k),`tog(${2*k})`,34)+chip(cx1+side/2+4,y0+14,'右',isOn(2*k+1),`tog(${2*k+1})`,34);
+  s+=chip(W/2,y0+14,`${dk}　${dbw(k)} kg`,isOn(2*k)&&isOn(2*k+1),`togDB(${k})`,96)});
+ s+=chip(W/2,rowH+15,'全部 4 端',sel.size==4,'togAll()',90);
  return `<svg viewBox="0 0 ${W} ${2*rowH+30}" preserveAspectRatio="xMidYMid meet">${s}</svg>`}
-function selName(){if(sel==='all')return eq==='槓鈴'?'全部 4 點':'全部 4 端';if(sel==='A'||sel==='B')return '啞鈴 '+sel+' 兩端';return eq==='槓鈴'?'第 '+'①②③④'[sel]+' 點':'啞鈴 '+'AB'[sel>>1]+(sel&1?' 右端':' 左端')}
+function selName(){if(!sel.size)return (eq==='槓鈴'?'全部 4 點':'全部 4 端')+'（未選＝全部）';if(sel.size==4)return eq==='槓鈴'?'全部 4 點':'全部 4 端';
+ return tgt().map(k=>eq==='槓鈴'?'①②③④'[k]:'AB'[k>>1]+(k&1?'右':'左')).join('、')}
 function head(r){if(!pts)return '';const ws=pts.map(c=>f2(sum(c))),eqw=ws.every(w=>w===ws[0]),ident=pts.every(c=>c.join()===pts[0].join());
  if(eq==='槓鈴'){if(ident)return `<div class="st">每點 ${ws[0]} kg　<span style="color:#4caf50">×4 點全相同</span></div>`;
   if(eqw)return `<div class="st">每點 ${ws[0]} kg　<span style="color:${HL}">⚠ 四點配置不同</span></div>`;
@@ -111,15 +118,15 @@ function add(i){msg='';if(!pts)pts=[Z(),Z(),Z(),Z()];if(!canAdd(i)){if(eq==='啞
 function rm(i,k){msg='';if(!pts[k][i])return;pts[k][i]--;
  if(eq==='啞鈴'){const d=k>>1;if((pts[2*d][5]||pts[2*d+1][5])&&dbw(d)<20-1e-9){pts[k][i]++;flash('不能移除：啞鈴 '+'AB'[d]+' 有 5 kg 片，重量不能低於 20 kg');render();return}}
  syncW();render()}
-function clr(){msg='';pts=[Z(),Z(),Z(),Z()];sel='all';syncW();render()}
+function clr(){msg='';pts=[Z(),Z(),Z(),Z()];sel=new Set();syncW();render()}
 function flash(t){msg=t;clearTimeout(flash.t);flash.t=setTimeout(()=>{msg='';render()},2500)}
-function selT(k){sel=k;render()}
+function selT(k){sel=new Set(k==='all'?[]:k==='A'?[0,1]:k==='B'?[2,3]:[k]);render()}
 function render(){if(pts)draw();drawPbs()}
 function num(x){const n=parseFloat(String(x).replace(/[，,]/g,'.').replace(/[^0-9.]/g,''));return isNaN(n)?NaN:Math.round(n*20)/20}
 function setW(v){W.value=v;msg='';lookup();drawPbs()}
 function step(d){let v=num(W.value)||0;const s=eq==='槓鈴'?1:.5;setW(f2(v+d*s))}
 $('mn').onclick=()=>step(-1);$('pl').onclick=()=>step(1);W.oninput=()=>{msg='';lookup();drawPbs()};
-$('bb').onclick=()=>{eq='槓鈴';sel='all';$('bb').className='on';$('db').className='';setW(42)};
-$('db').onclick=()=>{eq='啞鈴';sel='all';$('db').className='on';$('bb').className='';setW(10.3)};
+$('bb').onclick=()=>{eq='槓鈴';sel=new Set();$('bb').className='on';$('db').className='';setW(42)};
+$('db').onclick=()=>{eq='啞鈴';sel=new Set();$('db').className='on';$('bb').className='';setW(10.3)};
 setW(42);if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js');
 </script></body></html>
