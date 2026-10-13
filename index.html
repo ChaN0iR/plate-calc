@@ -21,10 +21,10 @@ svg{flex:1 1 0;min-height:50px;width:100%;height:100%;display:block}
 .chip{padding:3px 9px;border-radius:9px;font-weight:800;font-size:14px}
 .tot{margin-top:6px;padding-top:6px;border-top:1px solid #2a2a30;color:#ccc;font-size:15px;font-weight:700;text-align:center;flex:none}
 .bld{background:#16161a;border-radius:16px;padding:8px 10px;flex:none}
-.bld .lb:empty{display:none}
+.bh{display:flex;align-items:center;gap:10px;margin-bottom:6px}.seg{display:flex;background:#0d0d0f;border-radius:10px;padding:2px}.seg button{border:0;background:none;color:#999;font-size:13px;font-weight:700;padding:6px 12px;border-radius:8px;min-height:32px}.seg button.on{background:#3a3a42;color:#fff}
 .ok{color:#4caf50}.warn{color:#ffb300}
 svg text{font-family:-apple-system,"PingFang TC",sans-serif}
-.bld .lb{color:#ffb300;font-size:13px;font-weight:700;margin-bottom:6px}
+.bld .lb{color:#ffb300;font-size:13px;font-weight:700}
 .pbs{display:grid;grid-template-columns:repeat(auto-fit,minmax(40px,1fr));gap:6px}
 .pbs button{min-height:44px;border:0;border-radius:11px;background:#2a2a30;color:#eee;font-size:16px;font-weight:700;padding:0}
 .pbs button small{display:block;font-size:10px;font-weight:600;color:#999;margin-top:1px}
@@ -47,21 +47,22 @@ svg rect.pl{cursor:pointer}
 </style></head><body>
 <div class="tog"><button id="bb" class="on">槓鈴</button><button id="db">啞鈴</button></div>
 <div class="in"><button id="mn">−</button><input id="w" inputmode="decimal" value="42"><button id="pl">＋</button></div>
-<div class="hint" id="hint"></div><div class="card" id="out"></div><div class="bld"><div class="lb" id="lbl"></div><div class="pbs" id="pbs"></div></div>
-<script src="data.js?v=23"></script><script>
+<div class="hint" id="hint"></div><div class="card" id="out"></div><div class="bld"><div class="bh"><div class="seg" id="seg"></div><div class="lb" id="lbl"></div></div><div class="pbs" id="pbs"></div></div>
+<script src="data.js?v=24"></script><script>
 const P=[[1,'#8d6e63','1',.55],[1.25,'#9e9e9e','1.25',.6],[1.5,'#43a047','1.5',.68],[2,'#fdd835','2',.78],[2.5,'#1e88e5','2.5',.86],[5,'#e53935','5',1]];
 const INV=[8,4,4,4,4,4],TH=[13,16,17,22,17,20],TW=[15,24,25,30,26,28],Z=()=>[0,0,0,0,0,0];
-let eq='槓鈴',pts=null,sel=new Set(),same=null,msg='';const $=id=>document.getElementById(id),W=$('w');
+let eq='槓鈴',pts=null,md=4,cur=0,same=null,msg='';const $=id=>document.getElementById(id),W=$('w');
 const rows=()=>ROWS.filter(r=>r.e===eq),f2=x=>+(+x).toFixed(2);
 function plates(c){let a=[];for(let i=5;i>=0;i--)for(let k=0;k<c[i];k++)a.push(i);return a}
 function sum(c){return c.reduce((s,n,i)=>s+n*P[i][0],0)}
 function used(){const u=Z();(pts||[]).forEach(c=>c.forEach((n,i)=>u[i]+=n));return u}
 function dbw(k){return f2(0.3+sum(pts[2*k])+sum(pts[2*k+1]))}
-function tgt(){return sel.size?[...sel].sort():[0,1,2,3]}
-const isOn=k=>sel.has(k),allOn=()=>sel.size==0||sel.size==4;
-function tog(k){sel.has(k)?sel.delete(k):sel.add(k);render()}
-function togAll(){sel=sel.size==4?new Set():new Set([0,1,2,3]);render()}
-function togDB(d){const a=2*d,b=a+1;if(sel.has(a)&&sel.has(b)){sel.delete(a);sel.delete(b)}else{sel.add(a);sel.add(b)}render()}
+function tgt(){return md==4?[0,1,2,3]:md==2?(cur<2?[0,1]:[2,3]):[cur]}
+const isOn=k=>md<4&&tgt().includes(k);
+function tog(k){if(md==4)return;cur=k;render()}
+function togAll(){md=4;render()}
+function togDB(d){if(md==4)return;cur=2*d;if(md==1)md=2;render()}
+function setMd(m){md=m;render()}
 function chip(x,y,t,on,act,w){w=w||24;return `<g onclick="${act}" style="cursor:pointer"><rect x="${x-w/2-4}" y="${y-16}" width="${w+8}" height="32" fill="transparent"/><rect x="${x-w/2}" y="${y-12}" width="${w}" height="24" rx="12" fill="${on?HL:'#2a2a30'}" stroke="${on?HL:'#444'}"/><text x="${x}" y="${y}" fill="${on?'#000':'#ddd'}" font-size="13" font-weight="800" text-anchor="middle" dominant-baseline="central" pointer-events="none">${t}</text></g>`}
 function ptsOf(r){const A=r.p[0],o=r.p.slice(r.m);
  if(eq==='槓鈴')return r.m==2?[A,o[0],o[1],A]:r.p.slice();
@@ -77,7 +78,7 @@ function planBB(){const PW=80,mid=150,GAP=26,meas=c=>plates(c).reduce((a,i)=>a+T
  [xl,xr].forEach(x=>s+=`<rect x="${x-3}" y="10" width="6" height="${Hh-20}" rx="3" fill="#bbb" pointer-events="none"/><rect x="${x-14}" y="${cy-5}" width="28" height="10" rx="3" fill="#999" pointer-events="none"/>`);
  [[0,xl,-1,'①'],[1,xl,1,'②'],[2,xr,-1,'③'],[3,xr,1,'④']].forEach(([k,x,d,l])=>{let y=d<0?cy-GAP:cy+GAP;plates(pts[k]).forEach(i=>{const h=TH[i],w=PW*P[i][3],Y=d>0?y:y-h;s+=prect(i,x-w/2,Y,w,h,k);y+=d*(h+3)});
   s+=chip(x<W/2?x-PW/2-20:x+PW/2+20,d<0?cy-GAP-8:cy+GAP+8,l,isOn(k),`tog(${k})`)});
- s+=chip(W/2,cy,'全部',sel.size==4,'togAll()',52);
+ s+=chip(W/2,cy,'全部',md==4,'togAll()',52);
  return `<svg viewBox="0 0 ${W} ${Hh}" preserveAspectRatio="xMidYMid meet">${s}</svg>`}
 function planDB(){const H=70,mid=60,meas=c=>plates(c).reduce((a,i)=>a+TW[i]*.7+2,0);
  const side=Math.max(...pts.map(meas),64),W=side*2+mid+40,rowH=H+46;let s='';
@@ -88,9 +89,9 @@ function planDB(){const H=70,mid=60,meas=c=>plates(c).reduce((a,i)=>a+TW[i]*.7+2
    plates(pts[e]).forEach(i=>{const w=TW[i]*.7,h=H*P[i][3],X=d>0?x:x-w;s+=prect(i,X,cy-h/2,w,h,e,true);x+=d*(w+2)})});
   s+=chip(cx0-side/2-4,y0+14,'左',isOn(2*k),`tog(${2*k})`,34)+chip(cx1+side/2+4,y0+14,'右',isOn(2*k+1),`tog(${2*k+1})`,34);
   s+=chip(W/2,y0+14,`${dk} ${dbw(k)}`,isOn(2*k)&&isOn(2*k+1),`togDB(${k})`,70)});
- s+=chip(W/2,rowH+15,'全部',sel.size==4,'togAll()',52);
+ s+=chip(W/2,rowH+15,'全部',md==4,'togAll()',52);
  return `<svg viewBox="0 0 ${W} ${2*rowH+30}" preserveAspectRatio="xMidYMid meet">${s}</svg>`}
-function selName(){if(!sel.size||sel.size==4)return '';return '→ '+tgt().map(k=>eq==='槓鈴'?'①②③④'[k]:'AB'[k>>1]+(k&1?'右':'左')).join(' ')}
+function selName(){return md==4?'':'→ '+tgt().map(k=>eq==='槓鈴'?'①②③④'[k]:'AB'[k>>1]+(k&1?'右':'左')).join(' ')}
 function head(){if(!pts)return '';const ws=pts.map(c=>f2(sum(c))),eqw=ws.every(w=>w===ws[0]),ident=pts.every(c=>c.join()===pts[0].join());
  if(eq==='槓鈴'){if(ident)return `<div class="st">每點 ${ws[0]} kg <span class="ok">×4</span></div>`;
   if(eqw)return `<div class="st">每點 ${ws[0]} kg <span class="warn">⚠ 配置不同</span></div>`;
@@ -117,21 +118,21 @@ function lookup(){const v=num(W.value);$('hint').textContent=eq==='槓鈴'?'總�
 function canAdd(i){if(!pts)return false;const T=tgt(),u=used();if(INV[i]-u[i]<T.length)return false;
  if(eq==='啞鈴'&&i==5){for(const k of new Set(T.map(e=>e>>1))){const add=T.filter(e=>e>>1==k).length*5;if(dbw(k)+add<20-1e-9)return false}}return true}
 function drawPbs(){const u=used();let h='';for(let i=5;i>=0;i--){const left=INV[i]-u[i];h+=`<button onclick="add(${i})" ${canAdd(i)?'':'disabled'}>${P[i][2]}<small>剩${left}</small></button>`}
- $('pbs').innerHTML=h+'<button class="clr" onclick="clr()">清除</button>';$('lbl').textContent=selName()}
+ $('pbs').innerHTML=h+'<button class="clr" onclick="clr()">清除</button>';$('seg').innerHTML=[1,2,4].map(m=>`<button class="${md==m?'on':''}" onclick="setMd(${m})">${m}端</button>`).join('');$('lbl').textContent=selName()}
 function syncW(){W.value=eq==='槓鈴'?f2(12+pts.reduce((s,c)=>s+sum(c),0)):dbw(0)}
 function add(i){msg='';if(!pts)pts=[Z(),Z(),Z(),Z()];if(!canAdd(i)){if(eq==='啞鈴'&&i==5)flash('5 kg 只能用在 20 kg 以上的啞鈴');render();return}tgt().forEach(k=>pts[k][i]++);syncW();render()}
 function rm(i,k){msg='';if(!pts[k][i])return;pts[k][i]--;
  if(eq==='啞鈴'){const d=k>>1;if((pts[2*d][5]||pts[2*d+1][5])&&dbw(d)<20-1e-9){pts[k][i]++;flash('不能移除：啞鈴 '+'AB'[d]+' 有 5 kg 片，重量不能低於 20 kg');render();return}}
  syncW();render()}
-function clr(){msg='';pts=[Z(),Z(),Z(),Z()];sel=new Set();syncW();render()}
+function clr(){msg='';pts=[Z(),Z(),Z(),Z()];md=4;cur=0;syncW();render()}
 function flash(t){msg=t;clearTimeout(flash.t);flash.t=setTimeout(()=>{msg='';render()},2500)}
-function selT(k){sel=new Set(k==='all'?[]:k==='A'?[0,1]:k==='B'?[2,3]:[k]);render()}
+function selT(k){if(k==='all'){md=4}else if(k==='A'||k==='B'){md=2;cur=k==='A'?0:2}else{md=1;cur=k}render()}
 function render(){if(pts)draw();drawPbs()}
 function num(x){const n=parseFloat(String(x).replace(/[，,]/g,'.').replace(/[^0-9.]/g,''));return isNaN(n)?NaN:Math.round(n*20)/20}
 function setW(v){W.value=v;msg='';lookup();drawPbs()}
 function step(d){let v=num(W.value)||0;const s=eq==='槓鈴'?1:.5;setW(f2(v+d*s))}
 $('mn').onclick=()=>step(-1);$('pl').onclick=()=>step(1);W.oninput=()=>{msg='';lookup();drawPbs()};
-$('bb').onclick=()=>{eq='槓鈴';sel=new Set();$('bb').className='on';$('db').className='';setW(42)};
-$('db').onclick=()=>{eq='啞鈴';sel=new Set();$('db').className='on';$('bb').className='';setW(10.3)};
+$('bb').onclick=()=>{eq='槓鈴';md=4;cur=0;$('bb').className='on';$('db').className='';setW(42)};
+$('db').onclick=()=>{eq='啞鈴';md=4;cur=0;$('db').className='on';$('bb').className='';setW(10.3)};
 setW(42);if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js');
 </script></body></html>
