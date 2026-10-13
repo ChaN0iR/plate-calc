@@ -42,7 +42,7 @@ svg rect.pl{cursor:pointer}
 <div class="tog"><button id="bb" class="on">🏋️ 槓鈴</button><button id="db">💪 啞鈴</button></div>
 <div class="in"><button id="mn">−</button><input id="w" inputmode="decimal" value="42"><button id="pl">＋</button></div>
 <div class="hint" id="hint"></div><div class="card" id="out"></div><div class="bld"><div class="lb">手動加片（每點同時加・點圖中槓片移除）</div><div class="pbs" id="pbs"></div></div>
-<script src="data.js?v=17"></script><script>
+<script src="data.js?v=18"></script><script>
 const P=[[1,'#8d6e63','1',.55],[1.25,'#9e9e9e','1.25',.6],[1.5,'#43a047','1.5',.68],[2,'#fdd835','2',.78],[2.5,'#1e88e5','2.5',.86],[5,'#e53935','5',1]];
 let eq='槓鈴';const $=id=>document.getElementById(id),W=$('w');
 const T=x=>+(2*x).toFixed(2),tot=t=>eq==='啞鈴'?`<div class="tot">兩支合計 ${t} kg</div>`:'';
@@ -77,7 +77,7 @@ function clr(){manual=[0,0,0,0,0,0];W.value=wOf(manual);render()}
 function renderManual(){const m=manual;$('out').innerHTML=`<div class="st">每一端 ${+sum(m).toFixed(2)} kg　<span style="color:#4caf50">×4 點全相同</span></div>${svg(m)}<div class="chips">${chips(m)}</div>`+tot(wOf(m)*2/1&&T(wOf(m)))}
 function num(x){const n=parseFloat(String(x).replace(/[，,]/g,'.').replace(/[^0-9.]/g,''));return isNaN(n)?NaN:Math.round(n*20)/20}
 function mini(c){const g=['#fff','#e6e6e6','#cfcfcf','#b5b5b5','#9a9a9a','#7d7d7d'];return '<div class="bl">'+(plates(c).map(p=>{const i=P.indexOf(p);return `<i style="background:${g[i]};${i>=4?'color:#fff':''}">${p[2]}</i>`}).join('')||'<i style="background:#333;color:#888">空</i>')+'</div>'}
-const TH=[12,16,17,18,20,24],TW=[18,24,25,27,30,32];const GR=['#f2f2f2','#d9d9d9','#bdbdbd','#a0a0a0','#808080','#5c5c5c'];
+const TH=[10,16,17,18,17,20],TW=[15,24,25,27,26,28];const GR=['#f2f2f2','#d9d9d9','#bdbdbd','#a0a0a0','#808080','#5c5c5c'];
 function grp(c,x0,dir,cy,H){let x=x0,s='';plates(c).forEach(p=>{const i=P.indexOf(p),w=8+p[0]*1.8,h=H*p[3],X=dir>0?x:x-w;
  s+=`<rect class="pl" onclick="rm(${i})" x="${X}" y="${cy-h/2}" width="${w}" height="${h}" rx="2" fill="${GR[i]}" stroke="#111" stroke-width="1"/><text x="${X+w/2}" y="${cy}" transform="rotate(-90 ${X+w/2} ${cy})" fill="${i>=4?'#fff':'#111'}" font-size="${Math.min(11,w-1)}" font-weight="800" text-anchor="middle" dominant-baseline="central">${p[2]}</text>`;x+=dir*(w+2)});return [s,Math.abs(x-x0)]}
 function hshape(groups,cy,H,mid,lab){/* groups: [leftInner,leftOuter?] [rightInner,rightOuter?] */
