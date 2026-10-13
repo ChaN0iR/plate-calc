@@ -38,7 +38,7 @@ function svg(c){const a=plates(c);let x=40,s='';const H=150;
  return `<svg viewBox="0 0 ${L} 190"><rect x="0" y="72" width="34" height="26" fill="#777"/><rect x="34" y="60" width="6" height="50" fill="#999"/><rect x="40" y="76" width="${L-40}" height="18" rx="3" fill="#bbb"/>${s}</svg>`}
 function chips(c){return plates(c).map(p=>`<span class="chip" style="background:${p[1]};color:${p[0]==2?'#000':'#fff'}">${p[2]}</span>`).join('')||'<span class="note">不用掛片（空槓）</span>'}
 function sum(c){return c.reduce((s,n,i)=>s+n*P[i][0],0)}
-function render(){const v=parseFloat(W.value);$('hint').textContent=eq==='槓鈴'?'輸入總重（含 12 kg 空槓）':'輸入單支啞鈴重量（含 0.6 kg 握把）';
+function render(){const v=parseFloat(W.value);$('hint').textContent=eq==='槓鈴'?'輸入總重（含 12 kg 空槓）':'輸入單支啞鈴重量（含 0.3 kg 握把）';
  if(isNaN(v)){$('out').innerHTML='<div class="st">請輸入重量</div>';return}
  const R=rows(),r=R.find(r=>Math.abs(r.t-v)<1e-6);
  if(!r){const lo=R.filter(r=>r.t<v).pop(),hi=R.find(r=>r.t>v);
@@ -51,6 +51,6 @@ function setW(v){W.value=v;render()}
 function step(d){let v=parseFloat(W.value)||0;const s=eq==='槓鈴'?1:.5;setW(+(v+d*s).toFixed(2))}
 $('mn').onclick=()=>step(-1);$('pl').onclick=()=>step(1);W.oninput=render;
 $('bb').onclick=()=>{eq='槓鈴';$('bb').className='on';$('db').className='';setW(42)};
-$('db').onclick=()=>{eq='啞鈴';$('db').className='on';$('bb').className='';setW(10.6)};
+$('db').onclick=()=>{eq='啞鈴';$('db').className='on';$('bb').className='';setW(10.3)};
 render();if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js');
 </script></body></html>
