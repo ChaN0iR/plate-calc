@@ -35,19 +35,20 @@ svg rect.pl{cursor:pointer}
 .mix .bl{display:flex;flex-wrap:wrap;gap:2px}
 .mix .bl i{font-style:normal;font-size:10px;font-weight:800;color:#111;border-radius:3px;padding:1px 3px}
 .mix .bar{height:4px;background:#555;border-radius:2px;margin:4px 0}
+.mixh{margin-top:6px;border:2px solid #ffb300;border-radius:10px;padding:5px 8px;color:#ffb300;font-size:13px;font-weight:800;flex:none;background:#1d1a12}
 .note{margin-top:6px;color:#aaa;font-size:13px;line-height:1.3;flex:none}
 .near{flex:none}.near button{margin:6px 6px 0 0;border:0;border-radius:11px;background:#26262b;color:#fff;font-size:16px;padding:10px 14px;font-weight:700}
 </style></head><body>
 <div class="tog"><button id="bb" class="on">🏋️ 槓鈴</button><button id="db">💪 啞鈴</button></div>
 <div class="in"><button id="mn">−</button><input id="w" inputmode="decimal" value="42"><button id="pl">＋</button></div>
 <div class="hint" id="hint"></div><div class="card" id="out"></div><div class="bld"><div class="lb">手動加片（每點同時加・點圖中槓片移除）</div><div class="pbs" id="pbs"></div></div>
-<script src="data.js?v=14"></script><script>
+<script src="data.js?v=15"></script><script>
 const P=[[1,'#8d6e63','1',.55],[1.25,'#9e9e9e','1.25',.6],[1.5,'#43a047','1.5',.68],[2,'#fdd835','2',.78],[2.5,'#1e88e5','2.5',.86],[5,'#e53935','5',1]];
 let eq='槓鈴';const $=id=>document.getElementById(id),W=$('w');
 const T=x=>+(2*x).toFixed(2),tot=t=>eq==='啞鈴'?`<div class="tot">兩支合計 ${t} kg</div>`:'';
 const rows=()=>ROWS.filter(r=>r.e===eq);
 function plates(c){let a=[];for(let i=5;i>=0;i--)for(let k=0;k<c[i];k++)a.push(P[i]);return a}
-function svg(c){const a=plates(c);let x=40,s='';const H=150;
+function OLDsvg(c){const a=plates(c);let x=40,s='';const H=150;
  a.forEach(p=>{const w=p[0]>=2.5?30:p[0]>=1.5?24:20,h=H*p[3];
  s+=`<rect class="pl" onclick="rm(${P.indexOf(p)})" x="${x}" y="${(170-h)/2}" width="${w}" height="${h}" rx="4" fill="${p[1]}"/><text x="${x+w/2}" y="${(170-h)/2+h+16}" fill="#ddd" font-size="12" font-weight="700" text-anchor="middle">${p[2]}</text>`;x+=w+3});
  const L=Math.max(x+40,300);
@@ -62,8 +63,7 @@ function render0(){shown=null;const v=num(W.value);$('hint').textContent=eq==='�
   $('out').innerHTML=`<div class="st bad">✕ ${v} kg 湊不出來</div><div class="near">最接近：${lo?`<button onclick="setW(${lo.t})">↓ ${lo.t}</button>`:''}${hi?`<button onclick="setW(${hi.t})">↑ ${hi.t}</button>`:''}</div>`+tot([lo&&'↓ '+T(lo.t),hi&&'↑ '+T(hi.t)].filter(Boolean).join(' / '));return}
  const m=r.p[0];if(r.m==4)shown=m.slice();let note='×4 點全相同';
  if(r.m<4){const o=r.p.slice(r.m);note=`另${['','一','兩','三'][o.length]}點：`;}
- $('out').innerHTML=`<div class="st">每一端 ${sum(m)} kg　${r.m==4?'<span style="color:#4caf50">×4 點全相同</span>':`<span style="color:#ffb300">×${r.m} 點</span>`}</div>${svg(m)}<div class="chips">${chips(m)}</div>`+
-  (r.m<4?mixPanel(r):'')+tot(T(r.t))}
+ $('out').innerHTML=`<div class="st">每一端 ${sum(m)} kg　${r.m==4?'<span style="color:#4caf50">×4 點全相同</span>':`<span style="color:#ffb300">×${r.m} 點</span>`}</div>`+(eq==='槓鈴'?plan(ptsOf(r))+(r.m<4?mixPanel(r):`<div class="chips">${chips(m)}</div>`):OLDsvg(m)+`<div class="chips">${chips(m)}</div>`+(r.m<4?OLDmixPanel(r):''))+tot(T(r.t))}
 
 const INV=[8,4,4,4,4,4];let manual=null,shown=null;
 function inv(){return eq==='槓鈴'?INV:[8,4,4,4,4,0]}
@@ -77,7 +77,40 @@ function clr(){manual=[0,0,0,0,0,0];W.value=wOf(manual);render()}
 function renderManual(){const m=manual;$('out').innerHTML=`<div class="st">每一端 ${+sum(m).toFixed(2)} kg　<span style="color:#4caf50">×4 點全相同</span></div>${svg(m)}<div class="chips">${chips(m)}</div>`+tot(wOf(m)*2/1&&T(wOf(m)))}
 function num(x){const n=parseFloat(String(x).replace(/[，,]/g,'.').replace(/[^0-9.]/g,''));return isNaN(n)?NaN:Math.round(n*20)/20}
 function mini(c){const g=['#fff','#e6e6e6','#cfcfcf','#b5b5b5','#9a9a9a','#7d7d7d'];return '<div class="bl">'+(plates(c).map(p=>{const i=P.indexOf(p);return `<i style="background:${g[i]};${i>=4?'color:#fff':''}">${p[2]}</i>`}).join('')||'<i style="background:#333;color:#888">空</i>')+'</div>'}
-function mixPanel(r){const A=r.p[0],o=r.p.slice(r.m);let pts;
+const GR=['#f2f2f2','#d9d9d9','#bdbdbd','#a0a0a0','#808080','#5c5c5c'];
+function grp(c,x0,dir,cy,H){let x=x0,s='';plates(c).forEach(p=>{const i=P.indexOf(p),w=8+p[0]*1.8,h=H*p[3],X=dir>0?x:x-w;
+ s+=`<rect class="pl" onclick="rm(${i})" x="${X}" y="${cy-h/2}" width="${w}" height="${h}" rx="2" fill="${GR[i]}" stroke="#111" stroke-width="1"/><text x="${X+w/2}" y="${cy}" transform="rotate(-90 ${X+w/2} ${cy})" fill="${i>=4?'#fff':'#111'}" font-size="${Math.min(11,w-1)}" font-weight="800" text-anchor="middle" dominant-baseline="central">${p[2]}</text>`;x+=dir*(w+2)});return [s,Math.abs(x-x0)]}
+function hshape(groups,cy,H,mid,lab){/* groups: [leftInner,leftOuter?] [rightInner,rightOuter?] */
+ const [L,R]=groups;let s='',lw=0,rw=0,parts=[];
+ // measure
+ const meas=c=>plates(c).reduce((a,p)=>a+8+p[0]*1.8+2,0);
+ const sideW=g=>g.reduce((a,c)=>a+Math.max(meas(c),14)+12,0);
+ const wl=sideW(L),wr=sideW(R),cx0=10+wl+8,cx1=cx0+mid,W=cx1+8+wr+10;
+ s+=`<rect x="${cx0-6}" y="${cy-5}" width="${mid+12}" height="10" rx="3" fill="#888"/>`;
+ s+=`<rect x="4" y="${cy-3}" width="${W-8}" height="6" rx="3" fill="#bbb"/>`;
+ s+=`<rect x="${cx0-8}" y="${cy-H*.35}" width="6" height="${H*.7}" rx="2" fill="#999"/><rect x="${cx1+2}" y="${cy-H*.35}" width="6" height="${H*.7}" rx="2" fill="#999"/>`;
+ let x=cx0-10;L.forEach((c,k)=>{const [g,w]=grp(c,x,-1,cy,H);const ww=Math.max(w,14);s+=g+`<text x="${x-ww/2}" y="${cy+H/2+14}" fill="#ffb300" font-size="13" font-weight="800" text-anchor="middle">${lab[0][k]}</text>`;x-=ww+12});
+ x=cx1+10;R.forEach((c,k)=>{const [g,w]=grp(c,x,1,cy,H);const ww=Math.max(w,14);s+=g+`<text x="${x+ww/2}" y="${cy+H/2+14}" fill="#ffb300" font-size="13" font-weight="800" text-anchor="middle">${lab[1][k]}</text>`;x+=ww+12});
+ return [s,W]}
+function vstack(c,cx,y0,dir,PW){let y=y0,s='';plates(c).forEach(p=>{const i=P.indexOf(p),h=9+p[0]*2.2,w=PW*p[3],Y=dir>0?y:y-h;
+ s+=`<rect class="pl" onclick="rm(${i})" x="${cx-w/2}" y="${Y}" width="${w}" height="${h}" rx="2" fill="${GR[i]}" stroke="#111" stroke-width="1"/><text x="${cx}" y="${Y+h/2}" fill="${i>=4?'#fff':'#111'}" font-size="${Math.min(12,h-1)}" font-weight="800" text-anchor="middle" dominant-baseline="central">${p[2]}</text>`;y+=dir*(h+2)});return [s,Math.abs(y-y0)]}
+function plan(pts){
+ if(eq==='槓鈴'){const PW=96,mid=120,meas=c=>plates(c).reduce((a,p)=>a+9+p[0]*2.2+2,0),up=Math.max(meas(pts[0]),meas(pts[2]),20),dn=Math.max(meas(pts[1]),meas(pts[3]),20);
+  const xl=PW/2+20,xr=xl+mid,W=xr+PW/2+20,cy=22+up+12,Hh=cy+12+dn+8;let s='';
+  s+=`<rect x="${xl}" y="${cy-4}" width="${mid}" height="8" rx="3" fill="#888"/>`;
+  [xl,xr].forEach(x=>s+=`<rect x="${x-3}" y="8" width="6" height="${Hh-16}" rx="3" fill="#bbb"/><rect x="${x-14}" y="${cy-5}" width="28" height="10" rx="3" fill="#999"/>`);
+  [[pts[0],xl,-1,'①'],[pts[1],xl,1,'②'],[pts[2],xr,-1,'③'],[pts[3],xr,1,'④']].forEach(([c,x,d,l])=>{const [g]=vstack(c,x,d<0?cy-10:cy+10,d,PW);s+=g;
+   s+=`<text x="${x<W/2?x-PW/2-6:x+PW/2+6}" y="${d<0?cy-14:cy+22}" fill="#ffb300" font-size="15" font-weight="800" text-anchor="middle">${l}</text>`});
+  return `<svg viewBox="0 0 ${W} ${Hh}" preserveAspectRatio="xMidYMid meet">${s}</svg>`}
+ const H2=80,[a,Wa]=hshape([[pts[0]],[pts[1]]],H2/2+18,H2,50,[['左'],['右']]),[b,Wb]=hshape([[pts[2]],[pts[3]]],H2/2+18,H2,50,[['左'],['右']]);
+ const W=Math.max(Wa,Wb),hh=H2+40;
+ return `<svg viewBox="0 0 ${W} ${hh*2}" preserveAspectRatio="xMidYMid meet"><text x="4" y="12" fill="#ccc" font-size="12" font-weight="800">啞鈴 A</text><g transform="translate(${(W-Wa)/2},0)">${a}</g><text x="4" y="${hh+12}" fill="#ccc" font-size="12" font-weight="800">啞鈴 B</text><g transform="translate(${(W-Wb)/2},${hh})">${b}</g></svg>`}
+function ptsOf(r){const A=r.p[0],o=r.p.slice(r.m);
+ if(eq==='槓鈴')return r.m==2?[A,o[0],o[1],A]:r.p.slice();
+ const e=r.m==4?[A,A,A,A]:r.m==2?[A,o[0],A,o[1]]:r.m==3?[A,A,A,o[0]]:[A,o[0],o[1],o[2]];return e}
+function svg(c){return eq==='槓鈴'?plan([c,c,c,c]):OLDsvg(c)}
+function mixPanel(r){return `<div class="mixh">⚠ ${eq==='槓鈴'?'四點':'四端'}配置不同（每${eq==='槓鈴'?'點':'端'}都是 ${+sum(r.p[0]).toFixed(2)} kg，見上圖）</div>`}
+function OLDmixPanel(r){const A=r.p[0],o=r.p.slice(r.m);let pts;
  if(eq==='槓鈴'){pts=r.m==2?[A,o[0],o[1],A]:[A,...r.p.slice(1)];
   const n=['①','②','③','④'];return `<div class="mix"><div class="h">⚠ 四點配置不同（每點都是 ${+sum(A).toFixed(2)} kg）</div><div class="row">${pts.map((c,i)=>`<div class="pt"><b>${n[i]}${i<2?' 左':' 右'}</b>${mini(c)}</div>`).join('')}</div><div class="bar"></div></div>`}
  const e=r.m==2?[[A,o[0]],[A,o[1]]]:r.m==3?[[A,A],[A,o[0]]]:[[A,o[0]],[o[1],o[2]]];
