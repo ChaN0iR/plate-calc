@@ -42,14 +42,14 @@ svg rect.pl{cursor:pointer}
 <div class="tog"><button id="bb" class="on">🏋️ 槓鈴</button><button id="db">💪 啞鈴</button></div>
 <div class="in"><button id="mn">−</button><input id="w" inputmode="decimal" value="42"><button id="pl">＋</button></div>
 <div class="hint" id="hint"></div><div class="card" id="out"></div><div class="bld"><div class="lb">手動加片（每點同時加・點圖中槓片移除）</div><div class="pbs" id="pbs"></div></div>
-<script src="data.js?v=16"></script><script>
+<script src="data.js?v=17"></script><script>
 const P=[[1,'#8d6e63','1',.55],[1.25,'#9e9e9e','1.25',.6],[1.5,'#43a047','1.5',.68],[2,'#fdd835','2',.78],[2.5,'#1e88e5','2.5',.86],[5,'#e53935','5',1]];
 let eq='槓鈴';const $=id=>document.getElementById(id),W=$('w');
 const T=x=>+(2*x).toFixed(2),tot=t=>eq==='啞鈴'?`<div class="tot">兩支合計 ${t} kg</div>`:'';
 const rows=()=>ROWS.filter(r=>r.e===eq);
 function plates(c){let a=[];for(let i=5;i>=0;i--)for(let k=0;k<c[i];k++)a.push(P[i]);return a}
 function OLDsvg(c){const a=plates(c);let x=40,s='';const H=150;
- a.forEach(p=>{const w=p[0]>=2.5?30:p[0]>=1.5?24:20,h=H*p[3];
+ a.forEach(p=>{const w=TW[P.indexOf(p)],h=H*p[3];
  s+=`<rect class="pl" onclick="rm(${P.indexOf(p)})" x="${x}" y="${(170-h)/2}" width="${w}" height="${h}" rx="4" fill="${p[1]}"/><text x="${x+w/2}" y="${(170-h)/2+h+16}" fill="#ddd" font-size="12" font-weight="700" text-anchor="middle">${p[2]}</text>`;x+=w+3});
  const L=Math.max(x+40,300);
  return `<svg viewBox="0 0 ${L} 190" preserveAspectRatio="xMidYMid meet"><rect x="0" y="72" width="34" height="26" fill="#777"/><rect x="34" y="60" width="6" height="50" fill="#999"/><rect x="40" y="76" width="${L-40}" height="18" rx="3" fill="#bbb"/>${s}</svg>`}
@@ -77,7 +77,7 @@ function clr(){manual=[0,0,0,0,0,0];W.value=wOf(manual);render()}
 function renderManual(){const m=manual;$('out').innerHTML=`<div class="st">每一端 ${+sum(m).toFixed(2)} kg　<span style="color:#4caf50">×4 點全相同</span></div>${svg(m)}<div class="chips">${chips(m)}</div>`+tot(wOf(m)*2/1&&T(wOf(m)))}
 function num(x){const n=parseFloat(String(x).replace(/[，,]/g,'.').replace(/[^0-9.]/g,''));return isNaN(n)?NaN:Math.round(n*20)/20}
 function mini(c){const g=['#fff','#e6e6e6','#cfcfcf','#b5b5b5','#9a9a9a','#7d7d7d'];return '<div class="bl">'+(plates(c).map(p=>{const i=P.indexOf(p);return `<i style="background:${g[i]};${i>=4?'color:#fff':''}">${p[2]}</i>`}).join('')||'<i style="background:#333;color:#888">空</i>')+'</div>'}
-const GR=['#f2f2f2','#d9d9d9','#bdbdbd','#a0a0a0','#808080','#5c5c5c'];
+const TH=[12,16,17,18,20,24],TW=[18,24,25,27,30,32];const GR=['#f2f2f2','#d9d9d9','#bdbdbd','#a0a0a0','#808080','#5c5c5c'];
 function grp(c,x0,dir,cy,H){let x=x0,s='';plates(c).forEach(p=>{const i=P.indexOf(p),w=8+p[0]*1.8,h=H*p[3],X=dir>0?x:x-w;
  s+=`<rect class="pl" onclick="rm(${i})" x="${X}" y="${cy-h/2}" width="${w}" height="${h}" rx="2" fill="${GR[i]}" stroke="#111" stroke-width="1"/><text x="${X+w/2}" y="${cy}" transform="rotate(-90 ${X+w/2} ${cy})" fill="${i>=4?'#fff':'#111'}" font-size="${Math.min(11,w-1)}" font-weight="800" text-anchor="middle" dominant-baseline="central">${p[2]}</text>`;x+=dir*(w+2)});return [s,Math.abs(x-x0)]}
 function hshape(groups,cy,H,mid,lab){/* groups: [leftInner,leftOuter?] [rightInner,rightOuter?] */
@@ -92,10 +92,10 @@ function hshape(groups,cy,H,mid,lab){/* groups: [leftInner,leftOuter?] [rightInn
  let x=cx0-10;L.forEach((c,k)=>{const [g,w]=grp(c,x,-1,cy,H);const ww=Math.max(w,14);s+=g+`<text x="${x-ww/2}" y="${cy+H/2+14}" fill="#ffb300" font-size="13" font-weight="800" text-anchor="middle">${lab[0][k]}</text>`;x-=ww+12});
  x=cx1+10;R.forEach((c,k)=>{const [g,w]=grp(c,x,1,cy,H);const ww=Math.max(w,14);s+=g+`<text x="${x+ww/2}" y="${cy+H/2+14}" fill="#ffb300" font-size="13" font-weight="800" text-anchor="middle">${lab[1][k]}</text>`;x+=ww+12});
  return [s,W]}
-function vstack(c,cx,y0,dir,PW){let y=y0,s='';plates(c).forEach(p=>{const i=P.indexOf(p),h=10+p[0]*2.4,w=PW*p[3],Y=dir>0?y:y-h;
+function vstack(c,cx,y0,dir,PW){let y=y0,s='';plates(c).forEach(p=>{const i=P.indexOf(p),h=TH[i],w=PW*p[3],Y=dir>0?y:y-h;
  s+=`<rect class="pl" onclick="rm(${i})" x="${cx-w/2}" y="${Y}" width="${w}" height="${h}" rx="5" fill="${P[i][1]}"/><text x="${cx}" y="${Y+h/2}" fill="${i==3?'#000':'#fff'}" font-size="${Math.min(13,h-1)}" font-weight="800" text-anchor="middle" dominant-baseline="central">${p[2]}</text>`;y+=dir*(h+2)});return [s,Math.abs(y-y0)]}
 function plan(pts){
- if(eq==='槓鈴'){const PW=96,mid=120,meas=c=>plates(c).reduce((a,p)=>a+10+p[0]*2.4+2,0),up=Math.max(meas(pts[0]),meas(pts[2]),20),dn=Math.max(meas(pts[1]),meas(pts[3]),20);
+ if(eq==='槓鈴'){const PW=96,mid=120,meas=c=>plates(c).reduce((a,p)=>a+TH[P.indexOf(p)]+2,0),up=Math.max(meas(pts[0]),meas(pts[2]),20),dn=Math.max(meas(pts[1]),meas(pts[3]),20);
   const xl=PW/2+20,xr=xl+mid,W=xr+PW/2+20,cy=22+up+12,Hh=cy+12+dn+8;let s='';
   s+=`<rect x="${xl}" y="${cy-4}" width="${mid}" height="8" rx="3" fill="#888"/>`;
   [xl,xr].forEach(x=>s+=`<rect x="${x-3}" y="8" width="6" height="${Hh-16}" rx="3" fill="#bbb"/><rect x="${x-14}" y="${cy-5}" width="28" height="10" rx="3" fill="#999"/>`);
