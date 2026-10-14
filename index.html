@@ -22,6 +22,7 @@ svg{flex:1 1 0;min-height:50px;width:100%;height:100%;display:block}
 .tot{margin-top:6px;padding-top:6px;border-top:1px solid #2a2a30;color:#ccc;font-size:15px;font-weight:700;text-align:center;flex:none}
 .bld{background:#16161a;border-radius:16px;padding:8px 10px;flex:none}
 .bh{display:flex;align-items:center;gap:10px;margin-bottom:6px}.seg{display:flex;background:#0d0d0f;border-radius:10px;padding:2px}.seg button{border:0;background:none;color:#999;font-size:13px;font-weight:700;padding:6px 12px;border-radius:8px;min-height:32px}.seg button.on{background:#3a3a42;color:#fff}
+.seg.du{display:inline-flex;background:#1c1c20}.seg.du button{padding:3px 14px;min-height:26px}
 .ok{color:#4caf50}.warn{color:#ffb300}
 svg text{font-family:-apple-system,"PingFang TC",sans-serif}
 .bld .lb{color:#ffb300;font-size:13px;font-weight:700}
@@ -49,11 +50,11 @@ svg rect.pl{cursor:pointer}
 <div class="tog"><button id="bb" class="on">槓鈴</button><button id="db">啞鈴</button></div>
 <div class="in"><button id="mn">−</button><input id="w" inputmode="decimal" value="42"><button id="pl">＋</button></div>
 <div class="hint" id="hint"></div><div class="card" id="out"></div><div class="bld"><div class="bh"><div class="seg" id="seg"></div><div class="lb" id="lbl"></div></div><div class="pbs" id="pbs"></div></div>
-<script src="data.js?v=25"></script><script>
+<script src="data.js?v=26"></script><script>
 const P=[[1,'#8d6e63','1',.55],[1.25,'#9e9e9e','1.25',.6],[1.5,'#43a047','1.5',.68],[2,'#fdd835','2',.78],[2.5,'#1e88e5','2.5',.86],[5,'#e53935','5',1]];
 const INV=[8,4,4,4,4,4],TH=[13,16,17,22,17,20],TW=[15,24,25,30,26,28],Z=()=>[0,0,0,0,0,0];
-let eq='槓鈴',pts=null,sel=new Set(),vw=4,same=null,msg='';const $=id=>document.getElementById(id),W=$('w');
-const rows=()=>ROWS.filter(r=>r.e===eq),f2=x=>+(+x).toFixed(2);
+let du=+(localStorage.getItem('du')||1),eq='槓鈴',pts=null,sel=new Set(),vw=4,same=null,msg='';const $=id=>document.getElementById(id),W=$('w');
+const BBOK=[0,4,5],ok=i=>eq!=='槓鈴'||BBOK.includes(i),MU=()=>eq==='啞鈴'&&du==2?2:1,rows=()=>ROWS.filter(r=>r.e===eq).map(r=>({...r,t:f2(r.t*MU())})),f2=x=>+(+x).toFixed(2);
 function plates(c){let a=[];for(let i=5;i>=0;i--)for(let k=0;k<c[i];k++)a.push(i);return a}
 function sum(c){return c.reduce((s,n,i)=>s+n*P[i][0],0)}
 function used(){const u=Z();(pts||[]).forEach(c=>c.forEach((n,i)=>u[i]+=n));return u}
@@ -115,17 +116,17 @@ function draw(){const o=$('out');
  let h=(vw==4?head():'')+jump()+(eq==='槓鈴'?planBB():planDB())+stats();
  if(msg)h+=`<div class="msg">${msg}</div>`;
  o.innerHTML=h}
-function lookup(){const v=num(W.value);$('hint').textContent=eq==='槓鈴'?'總重 kg・含 12 kg 槓':'單支 kg・含 0.3 kg 握把';
+function lookup(){const v=num(W.value);$('hint').innerHTML=eq==='槓鈴'?'總重 kg・含 12 kg 槓':`<span class="seg du">${[1,2].map(m=>`<button class="${du==m?'on':''}" onclick="setDu(${m})">${m==1?'單支':'兩支'}</button>`).join('')}</span>`;
  if(isNaN(v)){pts=null;$('out').innerHTML='<div class="st">請輸入重量</div>';return}
  const R=rows(),r=R.find(r=>Math.abs(r.t-v)<0.025);
  if(!r){pts=null;const lo=R.filter(r=>r.t<v).pop(),hi=R.find(r=>r.t>v);
   $('out').innerHTML=`<div class="st bad">✕ ${v} kg 湊不出來</div><div class="near">${lo?`<button onclick="setW(${lo.t})">↓ ${lo.t}</button>`:''}${hi?`<button onclick="setW(${hi.t})">↑ ${hi.t}</button>`:''}</div>`+(eq==='啞鈴'?'':'');return}
  pts=ptsOf(r).map(c=>c.slice());draw()}
-function canAdd(i){if(!pts)return false;const T=tgt(),u=used();if(INV[i]-u[i]<T.length)return false;
+function canAdd(i){if(!pts||!ok(i))return false;const T=tgt(),u=used();if(INV[i]-u[i]<T.length)return false;
  if(eq==='啞鈴'&&i==5){for(const k of new Set(T.map(e=>e>>1))){const add=T.filter(e=>e>>1==k).length*5;if(dbw(k)+add<20-1e-9)return false}}return true}
-function drawPbs(){const u=used();let h='';for(let i=5;i>=0;i--){const left=INV[i]-u[i];h+=`<button onclick="add(${i})" ${canAdd(i)?'':'disabled'}>${P[i][2]}<small>剩${left}</small></button>`}
+function drawPbs(){const u=used();let h='';for(let i=5;i>=0;i--){if(!ok(i))continue;const left=INV[i]-u[i];h+=`<button onclick="add(${i})" ${canAdd(i)?'':'disabled'}>${P[i][2]}<small>剩${left}</small></button>`}
  $('pbs').innerHTML=h+'<button class="clr" onclick="clr()">清除</button>';$('seg').innerHTML=[1,2,4].map(m=>`<button class="${vw==m?'on':''}" onclick="setVw(${m})">${m}端</button>`).join('');$('lbl').textContent=selName()}
-function syncW(){W.value=eq==='槓鈴'?f2(12+pts.reduce((s,c)=>s+sum(c),0)):dbw(0)}
+function syncW(){W.value=eq==='槓鈴'?f2(12+pts.reduce((s,c)=>s+sum(c),0)):du==2?f2(dbw(0)+dbw(1)):dbw(0)}
 function add(i){msg='';if(!pts)pts=[Z(),Z(),Z(),Z()];if(!canAdd(i)){if(eq==='啞鈴'&&i==5)flash('5 kg 只能用在 20 kg 以上的啞鈴');render();return}tgt().forEach(k=>pts[k][i]++);syncW();render()}
 function rm(i,k){msg='';if(k<0){const bk=pts.map(c=>c.slice());pts.forEach(c=>{if(c[i])c[i]--});if(eq==='啞鈴'&&[0,1].some(d=>(pts[2*d][5]||pts[2*d+1][5])&&dbw(d)<20-1e-9)){pts=bk;flash('5 kg 啞鈴需 ≥ 20 kg');render();return}syncW();render();return}
  if(!pts[k][i])return;pts[k][i]--;
@@ -136,10 +137,11 @@ function flash(t){msg=t;clearTimeout(flash.t);flash.t=setTimeout(()=>{msg='';ren
 function selT(k){sel=new Set(k==='all'?[]:k==='A'?[0,1]:k==='B'?[2,3]:[k]);render()}
 function render(){if(pts)draw();drawPbs()}
 function num(x){const n=parseFloat(String(x).replace(/[，,]/g,'.').replace(/[^0-9.]/g,''));return isNaN(n)?NaN:Math.round(n*20)/20}
+function setDu(m){if(du==m)return;const v=num(W.value);du=m;try{localStorage.setItem('du',m)}catch(e){}setW(isNaN(v)?v:f2(m==2?v*2:v/2))}
 function setW(v){W.value=v;msg='';lookup();drawPbs()}
-function step(d){let v=num(W.value)||0;const s=eq==='槓鈴'?1:.5;setW(f2(v+d*s))}
+function step(d){let v=num(W.value)||0;const s=eq==='槓鈴'?1:.5*MU();setW(f2(v+d*s))}
 $('mn').onclick=()=>step(-1);$('pl').onclick=()=>step(1);W.oninput=()=>{msg='';lookup();drawPbs()};
 $('bb').onclick=()=>{eq='槓鈴';vw=getVw();sel=new Set();vw=getVw();$('bb').className='on';$('db').className='';setW(42)};
-$('db').onclick=()=>{eq='啞鈴';vw=getVw();sel=new Set();vw=getVw();$('db').className='on';$('bb').className='';setW(10.3)};
+$('db').onclick=()=>{eq='啞鈴';vw=getVw();sel=new Set();vw=getVw();$('db').className='on';$('bb').className='';setW(f2(10.3*MU()))};
 vw=getVw();setW(42);if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js');
 </script></body></html>
