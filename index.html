@@ -50,7 +50,7 @@ svg rect.pl{cursor:pointer}
 <div class="tog"><button id="bb" class="on">槓鈴</button><button id="db">啞鈴</button></div>
 <div class="in"><button id="mn">−</button><input id="w" inputmode="decimal" value="42"><button id="pl">＋</button></div>
 <div class="hint" id="hint"></div><div class="card" id="out"></div><div class="bld"><div class="bh"><div class="seg" id="seg"></div><div class="lb" id="lbl"></div></div><div class="pbs" id="pbs"></div></div>
-<script src="data.js?v=27"></script><script>
+<script src="data.js?v=28"></script><script>
 const P=[[1,'#8d6e63','1',.55],[1.25,'#9e9e9e','1.25',.6],[1.5,'#43a047','1.5',.68],[2,'#fdd835','2',.78],[2.5,'#1e88e5','2.5',.86],[5,'#e53935','5',1]];
 const INV=[8,4,4,4,4,4],TH=[13,16,17,22,17,20],TW=[15,24,25,30,26,28],Z=()=>[0,0,0,0,0,0];
 let du=+(localStorage.getItem('du')||1),eq='槓鈴',pts=null,sel=new Set(),vw=4,same=null,msg='';const $=id=>document.getElementById(id),W=$('w');
@@ -59,8 +59,8 @@ function plates(c){let a=[];for(let i=5;i>=0;i--)for(let k=0;k<c[i];k++)a.push(i
 function sum(c){return c.reduce((s,n,i)=>s+n*P[i][0],0)}
 function used(){const u=Z();(pts||[]).forEach(c=>c.forEach((n,i)=>u[i]+=n));return u}
 function dbw(k){return f2(0.3+sum(pts[2*k])+sum(pts[2*k+1]))}
-function tgt(){if(S1())return [0,1];return vw<4||!sel.size?[0,1,2,3]:[...sel].sort()}
-const isOn=k=>vw==4&&sel.has(k);
+function tgt(){if(S1())return vw==2&&sel.size?[...sel].sort():[0,1];return vw<4||!sel.size?[0,1,2,3]:[...sel].sort()}
+const isOn=k=>(vw==4||S1()&&vw==2)&&sel.has(k);
 function tog(k){sel.has(k)?sel.delete(k):sel.add(k);render()}
 function togAll(){sel=sel.size==4?new Set():new Set([0,1,2,3]);render()}
 function togDB(d){const a=2*d,b=a+1;if(sel.has(a)&&sel.has(b)){sel.delete(a);sel.delete(b)}else{sel.add(a);sel.add(b)}render()}
@@ -91,9 +91,9 @@ function planDB(){if(vw==1)return sleeve(pts[0]);const n=vw==2?1:2,H=70,mid=60,m
   s+=hit(cx0-side-8,y0+28,side+6,H+12,isOn(2*k))+hit(cx1+2,y0+28,side+6,H+12,isOn(2*k+1));
   s+=`<rect x="6" y="${cy-3}" width="${W-12}" height="6" rx="3" fill="#bbb" pointer-events="none"/><rect x="${cx0}" y="${cy-6}" width="${mid}" height="12" rx="4" fill="#888" pointer-events="none"/>`;
   [[2*k,cx0-4,-1],[2*k+1,cx1+4,1]].forEach(([e,x,d])=>{s+=`<rect x="${d<0?x-4:x}" y="${cy-H*.3}" width="4" height="${H*.6}" rx="2" fill="#999" pointer-events="none"/>`;x+=d*6;
-   plates(pts[e]).forEach(i=>{const w=TW[i]*.7,h=H*P[i][3],X=d>0?x:x-w;s+=prect(i,X,cy-h/2,w,h,n==2?e:-1,true);x+=d*(w+2)})});
+   plates(pts[e]).forEach(i=>{const w=TW[i]*.7,h=H*P[i][3],X=d>0?x:x-w;s+=prect(i,X,cy-h/2,w,h,n==2||S1()?e:-1,true);x+=d*(w+2)})});
   if(n==2){s+=chip(cx0-side/2-4,y0+14,'左',isOn(2*k),`tog(${2*k})`,34)+chip(cx1+side/2+4,y0+14,'右',isOn(2*k+1),`tog(${2*k+1})`,34);
-  s+=chip(W/2,y0+14,`${dk} ${dbw(k)}`,isOn(2*k)&&isOn(2*k+1),`togDB(${k})`,70)}else s+=`<text x="${W/2}" y="${y0+16}" fill="#ccc" font-size="13" font-weight="700" text-anchor="middle">單支</text>`});
+  s+=chip(W/2,y0+14,`${dk} ${dbw(k)}`,isOn(2*k)&&isOn(2*k+1),`togDB(${k})`,70)}else{s+=`<text x="${W/2}" y="${y0+16}" fill="#ccc" font-size="13" font-weight="700" text-anchor="middle" dominant-baseline="central">單支</text>`;if(S1())s+=chip(cx0-side/2-4,y0+14,'左',isOn(0),'tog(0)',34)+chip(cx1+side/2+4,y0+14,'右',isOn(1),'tog(1)',34)}});
  if(n==2)s+=chip(W/2,rowH+15,'全部',sel.size==4,'togAll()',52);
  return `<svg viewBox="0 0 ${W} ${n==2?2*rowH+30:rowH+4}" preserveAspectRatio="xMidYMid meet">${s}</svg>`}
 function selName(){if(vw<4||!sel.size||sel.size==4)return '';return '→ '+tgt().map(k=>eq==='槓鈴'?'①②③④'[k]:'AB'[k>>1]+(k&1?'右':'左')).join(' ')}
@@ -110,7 +110,7 @@ function jump(){const v=num(W.value),R=rows(),lo=R.filter(r=>r.t<v-0.02).pop(),h
 function stats(){const ws=pts.map(c=>f2(sum(c))),diff=!pts.every(c=>c.join()===pts[0].join()),w=`<b class="warn">⚠</b>`;
  const cell=(l,v,x)=>`<div><span>${l}</span><b>${v}${x?w:''}</b></div>`;
  if(eq==='槓鈴')return `<div class="stats">${cell('每點',ws[0],diff)}${cell('總重',f2(12+ws.reduce((a,b)=>a+b,0)))}</div>`;
- const a=dbw(0),b=dbw(1);if(S1())return `<div class="stats">${cell('一端',ws[0],ws[0]!==ws[1])}${cell('單支',a)}</div>`;return `<div class="stats">${cell('一端',ws[0],diff)}${cell('單支',a,a!==b)}${cell('兩支',f2(a+b))}</div>`}
+ const a=dbw(0),b=dbw(1);if(S1())return `<div class="stats">${cell('一端',ws[0]===ws[1]?ws[0]:ws[0]+' / '+ws[1])}${cell('單支',a)}</div>`;return `<div class="stats">${cell('一端',ws[0],diff)}${cell('單支',a,a!==b)}${cell('兩支',f2(a+b))}</div>`}
 function draw(){const o=$('out');
  if(!pts){return}
  let h=(vw==4?head():'')+jump()+(eq==='槓鈴'?planBB():planDB())+stats();

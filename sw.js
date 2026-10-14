@@ -1,4 +1,4 @@
-const C='plates-v27',F=['./','index.html','data.js?v=27','manifest.json','icon-v8-180.png','apple-touch-icon.png','icon-192.png','icon-v8-512.png'];
+const C='plates-v28',F=['./','index.html','data.js?v=28','manifest.json','icon-v8-180.png','apple-touch-icon.png','icon-192.png','icon-v8-512.png'];
 self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(C).then(c=>c.addAll(F)))});
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==C).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
 self.addEventListener('fetch',e=>{const u=new URL(e.request.url);if(e.request.method!=='GET'||u.origin!==location.origin)return;
