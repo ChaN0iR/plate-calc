@@ -50,7 +50,7 @@ svg rect.pl{cursor:pointer}
 <div class="tog"><button id="bb" class="on">槓鈴</button><button id="db">啞鈴</button></div>
 <div class="in"><button id="mn">−</button><input id="w" inputmode="decimal" value="42"><button id="pl">＋</button></div>
 <div class="hint" id="hint"></div><div class="card" id="out"></div><div class="bld"><div class="bh"><div class="seg" id="seg"></div><div class="lb" id="lbl"></div></div><div class="pbs" id="pbs"></div></div>
-<script src="data.js?v=28"></script><script>
+<script src="data.js?v=29"></script><script>
 const P=[[1,'#8d6e63','1',.55],[1.25,'#9e9e9e','1.25',.6],[1.5,'#43a047','1.5',.68],[2,'#fdd835','2',.78],[2.5,'#1e88e5','2.5',.86],[5,'#e53935','5',1]];
 const INV=[8,4,4,4,4,4],TH=[13,16,17,22,17,20],TW=[15,24,25,30,26,28],Z=()=>[0,0,0,0,0,0];
 let du=+(localStorage.getItem('du')||1),eq='槓鈴',pts=null,sel=new Set(),vw=4,same=null,msg='';const $=id=>document.getElementById(id),W=$('w');
@@ -143,5 +143,9 @@ function step(d){let v=num(W.value)||0;const s=eq==='槓鈴'?1:.5*MU();setW(f2(v
 $('mn').onclick=()=>step(-1);$('pl').onclick=()=>step(1);W.oninput=()=>{msg='';lookup();drawPbs()};
 $('bb').onclick=()=>{eq='槓鈴';vw=getVw();sel=new Set();vw=getVw();$('bb').className='on';$('db').className='';setW(42)};
 $('db').onclick=()=>{eq='啞鈴';vw=getVw();sel=new Set();vw=getVw();$('db').className='on';$('bb').className='';setW(f2(10.3*MU()))};
-vw=getVw();setW(42);if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js');
+(function(){const q=new URLSearchParams(location.search),m=(q.get('m')||'').toLowerCase(),w=parseFloat(q.get('w'));
+ if(m==='d'||m==='b'){eq=m==='d'?'啞鈴':'槓鈴';if(m==='d'){const u=+q.get('u');if(u===1||u===2){du=u;try{localStorage.setItem('du',u)}catch(e){}}}
+  $('bb').className=m==='b'?'on':'';$('db').className=m==='d'?'on':'';vw=getVw();sel=new Set();
+  setW(isNaN(w)?(m==='b'?42:f2(10.3*MU())):w);return}
+ vw=getVw();setW(42)})();if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js');
 </script></body></html>
