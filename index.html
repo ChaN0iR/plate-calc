@@ -23,6 +23,7 @@ svg{flex:1 1 0;min-height:50px;width:100%;height:100%;display:block}
 .bld{background:#16161a;border-radius:16px;padding:8px 10px;flex:none}
 .bh{display:flex;align-items:center;gap:10px;margin-bottom:6px}.seg{display:flex;background:#0d0d0f;border-radius:10px;padding:2px}.seg button{border:0;background:none;color:#999;font-size:13px;font-weight:700;padding:6px 12px;border-radius:8px;min-height:32px}.seg button.on{background:#3a3a42;color:#fff}
 .seg.du{display:inline-flex;background:#1c1c20}.seg.du button{padding:3px 14px;min-height:26px}
+.wch{display:flex;gap:6px;justify-content:center;flex:none}.wch:empty{display:none}.wch button{border:0;border-radius:10px;background:#26262b;color:#ddd;font-size:15px;font-weight:700;padding:6px 12px;min-height:32px}.wch button.on{background:#ff7a1a;color:#fff}.wch button.dim{opacity:.35}
 .ok{color:#4caf50}.warn{color:#ffb300}
 svg text{font-family:-apple-system,"PingFang TC",sans-serif}
 .bld .lb{color:#ffb300;font-size:13px;font-weight:700}
@@ -49,11 +50,11 @@ svg rect.pl{cursor:pointer}
 </style></head><body>
 <div class="tog"><button id="bb" class="on">槓鈴</button><button id="db">啞鈴</button></div>
 <div class="in"><button id="mn">−</button><input id="w" inputmode="decimal" value="42"><button id="pl">＋</button></div>
-<div class="hint" id="hint"></div><div class="card" id="out"></div><div class="bld"><div class="bh"><div class="seg" id="seg"></div><div class="lb" id="lbl"></div></div><div class="pbs" id="pbs"></div></div>
-<script src="data.js?v=29"></script><script>
+<div class="wch" id="wch"></div><div class="hint" id="hint"></div><div class="card" id="out"></div><div class="bld"><div class="bh"><div class="seg" id="seg"></div><div class="lb" id="lbl"></div></div><div class="pbs" id="pbs"></div></div>
+<script src="data.js?v=30"></script><script>
 const P=[[1,'#8d6e63','1',.55],[1.25,'#9e9e9e','1.25',.6],[1.5,'#43a047','1.5',.68],[2,'#fdd835','2',.78],[2.5,'#1e88e5','2.5',.86],[5,'#e53935','5',1]];
 const INV=[8,4,4,4,4,4],TH=[13,16,17,22,17,20],TW=[15,24,25,30,26,28],Z=()=>[0,0,0,0,0,0];
-let du=+(localStorage.getItem('du')||1),eq='槓鈴',pts=null,sel=new Set(),vw=4,same=null,msg='';const $=id=>document.getElementById(id),W=$('w');
+let WL=[],du=+(localStorage.getItem('du')||1),eq='槓鈴',pts=null,sel=new Set(),vw=4,same=null,msg='';const $=id=>document.getElementById(id),W=$('w');
 const BBOK=[0,4,5],ok=i=>eq!=='槓鈴'||BBOK.includes(i),MU=()=>eq==='啞鈴'&&du==2?2:1,S1=()=>eq==='啞鈴'&&du==1,rows=()=>ROWS.filter(r=>r.e===(S1()?'啞鈴1':eq)).map(r=>({...r,t:f2(r.t*MU())})),f2=x=>+(+x).toFixed(2);
 function plates(c){let a=[];for(let i=5;i>=0;i--)for(let k=0;k<c[i];k++)a.push(i);return a}
 function sum(c){return c.reduce((s,n,i)=>s+n*P[i][0],0)}
@@ -116,7 +117,8 @@ function draw(){const o=$('out');
  let h=(vw==4?head():'')+jump()+(eq==='槓鈴'?planBB():planDB())+stats();
  if(msg)h+=`<div class="msg">${msg}</div>`;
  o.innerHTML=h}
-function lookup(){const v=num(W.value);$('hint').innerHTML=eq==='槓鈴'?'總重 kg・含 12 kg 槓':`<span class="seg du">${[1,2].map(m=>`<button class="${du==m?'on':''}" onclick="setDu(${m})">${m==1?'單支':'兩支'}</button>`).join('')}</span>`;
+function wch(v){$('wch').innerHTML=WL.length<2?'':WL.map(x=>{const okk=rows().some(r=>Math.abs(r.t-x)<.025);return `<button class="${Math.abs(x-v)<.025?'on':''} ${okk?'':'dim'}" onclick="setW(${x})">${x}</button>`}).join('')}
+function lookup(){const v=num(W.value);wch(v);$('hint').innerHTML=eq==='槓鈴'?'總重 kg・含 12 kg 槓':`<span class="seg du">${[1,2].map(m=>`<button class="${du==m?'on':''}" onclick="setDu(${m})">${m==1?'單支':'兩支'}</button>`).join('')}</span>`;
  if(isNaN(v)){pts=null;$('out').innerHTML='<div class="st">請輸入重量</div>';return}
  const R=rows(),r=R.find(r=>Math.abs(r.t-v)<0.025);
  if(!r){pts=null;const lo=R.filter(r=>r.t<v).pop(),hi=R.find(r=>r.t>v);
@@ -137,15 +139,15 @@ function flash(t){msg=t;clearTimeout(flash.t);flash.t=setTimeout(()=>{msg='';ren
 function selT(k){sel=new Set(k==='all'?[]:k==='A'?[0,1]:k==='B'?[2,3]:[k]);render()}
 function render(){if(pts)draw();drawPbs()}
 function num(x){const n=parseFloat(String(x).replace(/[，,]/g,'.').replace(/[^0-9.]/g,''));return isNaN(n)?NaN:Math.round(n*20)/20}
-function setDu(m){if(du==m)return;const v=num(W.value);du=m;try{localStorage.setItem('du',m)}catch(e){}sel=new Set();vw=getVw();setW(isNaN(v)?v:f2(m==2?v*2:v/2))}
+function setDu(m){if(du==m)return;WL=[];const v=num(W.value);du=m;try{localStorage.setItem('du',m)}catch(e){}sel=new Set();vw=getVw();setW(isNaN(v)?v:f2(m==2?v*2:v/2))}
 function setW(v){W.value=v;msg='';lookup();drawPbs()}
 function step(d){let v=num(W.value)||0;const s=eq==='槓鈴'?1:.5*MU();setW(f2(v+d*s))}
 $('mn').onclick=()=>step(-1);$('pl').onclick=()=>step(1);W.oninput=()=>{msg='';lookup();drawPbs()};
-$('bb').onclick=()=>{eq='槓鈴';vw=getVw();sel=new Set();vw=getVw();$('bb').className='on';$('db').className='';setW(42)};
-$('db').onclick=()=>{eq='啞鈴';vw=getVw();sel=new Set();vw=getVw();$('db').className='on';$('bb').className='';setW(f2(10.3*MU()))};
-(function(){const q=new URLSearchParams(location.search),m=(q.get('m')||'').toLowerCase(),w=parseFloat(q.get('w'));
+$('bb').onclick=()=>{WL=[];eq='槓鈴';vw=getVw();sel=new Set();vw=getVw();$('bb').className='on';$('db').className='';setW(42)};
+$('db').onclick=()=>{WL=[];eq='啞鈴';vw=getVw();sel=new Set();vw=getVw();$('db').className='on';$('bb').className='';setW(f2(10.3*MU()))};
+(function(){const q=new URLSearchParams(location.search),m=(q.get('m')||'').toLowerCase(),wl=(q.get('w')||'').split(/[,，]/).map(parseFloat).filter(x=>!isNaN(x)).map(x=>Math.round(x*20)/20),w=wl.length?wl[wl.length-1]:NaN;
  if(m==='d'||m==='b'){eq=m==='d'?'啞鈴':'槓鈴';if(m==='d'){const u=+q.get('u');if(u===1||u===2){du=u;try{localStorage.setItem('du',u)}catch(e){}}}
-  $('bb').className=m==='b'?'on':'';$('db').className=m==='d'?'on':'';vw=getVw();sel=new Set();
+  $('bb').className=m==='b'?'on':'';$('db').className=m==='d'?'on':'';vw=getVw();sel=new Set();WL=wl.length>1?wl:[];
   setW(isNaN(w)?(m==='b'?42:f2(10.3*MU())):w);return}
  vw=getVw();setW(42)})();if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js');
 </script></body></html>
